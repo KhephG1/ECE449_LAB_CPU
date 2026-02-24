@@ -1,0 +1,91 @@
+-- ECE449 Lehung Nguyen 
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL; -- Standard library for safe arithmetic
+
+entity ALU is
+    Port ( 
+        op1        : in  STD_LOGIC_VECTOR (15 downto 0); -- Operand 1 (R[rb])
+        op2        : in  STD_LOGIC_VECTOR (15 downto 0); -- Operand 2 (R[rc])
+        alu_mode   : in  STD_LOGIC_VECTOR (2 downto 0);  -- Control signal from Decoder
+        alu_result : out STD_LOGIC_VECTOR (15 downto 0); -- 16-bit computed result
+        flag_z     : out STD_LOGIC;                      -- Zero flag 
+        flag_n     : out STD_LOGIC                       -- Negative flag 
+    );
+end ALU;
+
+architecture Behavioral of ALU is
+
+signal adder_result : std_logic_vector(15 downto 0);
+signal multiplier_result : std_logic_vector(15 downto 0);
+signal adder_mode : std_logic;
+signal shift_mode : std_logic;
+signal shift_result : std_logic;
+
+begin
+    adder : entity work.kogge_stone_adder_16bit
+    port map(a=> op1,mode=>adder_mode, b=> op2,sum=> adder_result);
+    
+    multiplier : entity work.booth_multiplier
+    port map(a=> op1, b=>op2, p=>muliplier_result);
+    
+    shift_left_right : Shift_right_left 
+    port map(a=> op1, n=>op2,mode=>shift_mode,r=>shift_result);
+    
+    -- Combinational process: triggers whenever an input changes
+    process(op1, op2, alu_mode)
+        -- Use a variable so intermediate calculations update instantly
+        variable temp_result : STD_LOGIC_VECTOR(15 downto 0);
+    begin
+ 
+        temp_result := (others => '0');
+
+        -- 2. Execute the requested operation based on Format A specs
+        case alu_mode is
+            when "001" => 
+                adder_mode <='0';
+                -- ADD: Requires casting to 'signed' for math, then back to STD_LOGIC_VECTOR
+                temp_result := adder_result;
+                
+            when "010" => 
+                -- SUB
+               adder_mode <= '1';
+               temp_result := adder_result;
+               
+            when "011" =>
+               -- MUL
+               temp_result := multiplier_result;
+            when "100" => 
+                -- NAND (Bitwise logic does not require numeric casting)
+                temp_result := op1 nand op2;
+                
+            -- Add other Format A operations (MUL, SHL, SHR) here
+            when "101" => 
+                --SHL
+                shift_mode <= '1';
+                temp_result := shift_result;
+                
+            when "110" =>
+                --SHR 
+                shift_mode <= '0';
+                temp_result := shift_result;
+            when "111" =>
+                --TEST
+                if to_integer(op1,16) = 0 then 
+                    z <= '1';
+                else
+                    z <= '0';
+                end if;
+                if to_integer(op1,16) < 1 then 
+                    n <= '1';
+                else 
+                    n <= '0';
+                end if;
+            when others =>
+                temp_result := (others => '0'); -- Safe fallback
+        end case;
+        -- 3. Assign the variable to the actual output port
+        alu_result <= temp_result;
+
+    end process;
+end Behavioral;
