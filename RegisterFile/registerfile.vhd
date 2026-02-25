@@ -20,7 +20,7 @@
 -------------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 entity register_file is
 port(rst : in std_logic; clk: in std_logic;
@@ -42,16 +42,23 @@ signal reg_file : reg_array; begin
 --write operation 
 process(clk)
 begin
-   if(clk='0' and clk'event) then if(rst='1') then
-      for i in 0 to 7 loop
-         reg_file(i)<= (others => '0'); 
-      end loop;
-   elsif(wr_enable=‘1') then
-      case wr_index(2 downto 0) is
-      when "000" => reg_file(0) <= wr_data;
-      --fill this part
-      when others => NULL; end case;
-    end if; 
+   if(clk='0' and clk'event) then 
+      if(rst='1') then
+         for i in 0 to 7 loop
+            reg_file(i)<= (others => '0'); 
+         end loop;
+      elsif(wr_enable='1') then
+         case wr_index(2 downto 0) is
+         when "000" => reg_file(0) <= wr_data;
+         when "001" => reg_file(1) <= wr_data;
+         when "010" => reg_file(2) <= wr_data;
+         when "011" => reg_file(3) <= wr_data;
+         when "100" => reg_file(4) <= wr_data;
+         when "101" => reg_file(5) <= wr_data;
+         when "110" => reg_file(6) <= wr_data;
+         when "111" => reg_file(7) <= wr_data;
+         when others => NULL; end case;
+      end if; 
     end if;
 end process;
 
@@ -66,6 +73,12 @@ reg_file(5) when(rd_index1="101") else
 reg_file(6) when(rd_index1="110") else reg_file(7);
 
 rd_data2 <=
---fill this part
+reg_file(0) when(rd_index2="000") else
+reg_file(1) when(rd_index2="001") else
+reg_file(2) when(rd_index2="010") else
+reg_file(3) when(rd_index2="011") else
+reg_file(4) when(rd_index2="100") else
+reg_file(5) when(rd_index2="101") else
+reg_file(6) when(rd_index2="110") else reg_file(7);
 
-end behavioural;k
+end behavioural;
