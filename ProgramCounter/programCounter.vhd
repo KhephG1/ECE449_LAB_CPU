@@ -29,6 +29,7 @@ entity program_counter is
     Port(
         load:           in std_logic;
         clk:            in std_logic;
+        inc;            in std_logic;
         address_in:     in  std_logic_vector(15 downto 0);
         address_out:    out std_logic_vector(15 downto 0)
     );
@@ -37,13 +38,13 @@ end program_counter;
 architecture Behavioral of program_counter is
     signal pc: std_logic_vector( 15 downto 0) := x"0000";
 begin
-    process(clk,load)
+    process(clk,inc,load)
     begin
         if rising_edge(clk) then
             if load ='1' then
                 pc <= address_in;
-            else
-                pc <= std_logic_vector(unsigned(pc) + 4);
+            elsif inc = '1'
+                pc <= std_logic_vector(unsigned(pc) + 2);
             end if;
         end if;
            
