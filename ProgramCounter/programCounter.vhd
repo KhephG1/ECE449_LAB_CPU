@@ -37,7 +37,7 @@ end program_counter;
 architecture Behavioral of program_counter is
     signal pc: std_logic_vector( 15 downto 0) := x"0000";
 begin
-    process(clk,rst_load,rst_execute,load)
+    process(clk,load)
     begin
         if rising_edge(clk) then
             if load ='1' then
