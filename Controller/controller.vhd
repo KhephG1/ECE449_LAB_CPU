@@ -37,7 +37,7 @@ entity controller is
     clk:            in std_logic;
     rst_load:       in std_logic;
     rst_execute:    in std_logic;
-    instruction:    in std_logic_vector(15 downto 0);
+    opcode:         in std_logic_vector(6 downto 0);
     mem_data_out:   in std_logic_vector(15 downto 0); -- data read from ram
 
     flag_z:         in std_logic;
@@ -52,14 +52,13 @@ entity controller is
     em_data_in:     out std_logic_vector(15 downto 0);  -- data to write for STORE
     
     -- Program Counter Control Signals
-    pc_inc:         out std_logic; -- Program Counter Increment
-    pc_load:        out std_logic; -- Program Counter Load Signal
-    pc_addrss       out std_logic_vector (15 downto 0);
+    pc_mode:        out std_logic; ---
+    pc_load:        out std_logic;
 
     -- ALU Control Signals
     alu_mode:       out std_logic_vector(2 downto 0);
     alu_op1:        out std_logic; -- not sure if it should be generic op1 or specific to ALU
-    alu_op2:        out std_logic;
+    alu_op2:        out std_logic
     alu_src:        out std_logic;
 
     out_port_en:    out std_logic
@@ -76,23 +75,18 @@ architecture Behavioral of controller is
 -- A format instructions:    
     subtype opcode_t is std_logic_vector (6 downto 0);
     -- constant OP_NOP : opcode_t := x"00";
-    constant OP_ADD : opcode_t := x"01";
-    -- constant OP_SUB : opcode_t := x"02";
-    -- constant OP_MUL : opcode_t := x"03";
-    -- constant OP_NAND: opcode_t := x"04";
-    -- constant OP_SHL : opcode_t := x"05";
-    -- constant OP_SHR : opcode_t := x"06";
-    -- constant OP_TEST: opcode_t := x"07";
-    -- constant OP_OUT:  opcode_t := x"20";
-    -- constant OP_IN:   opcode_t := x"21";
+    constant OP_ADD  : opcode_t := "0000001";
+    constant OP_SUB  : opcode_t := "0000010";
+    constant OP_MUL  : opcode_t := "0000011";
+    constant OP_NAND : opcode_t := "0000100";
+    constant OP_SHL  : opcode_t := "0000101";
+    constant OP_SHR  : opcode_t := "0000110";
+    constant OP_TEST : opcode_t := "0000111";
+    constant OP_OUT  : opcode_t := "0100000";
+    constant OP_IN   : opcode_t := "0100001";
     
--- Signals for Instructions
-    signal opcode: opcode_t;
-    signal reg_a std_logic_vector(2 downto 0); -- Operand 1 (R[rb])
-    signal reg_b std_logic_vector(2 downto 0); -- Operand 2 (R[rc])
-    signal reg_c std_logic_vector(2 downto 0); -- SRC Register 3
 
-begin
+    begin
 
  
     process(clk)
@@ -100,34 +94,23 @@ begin
     if rising_edge(clk) then 
         -- Implement synchronous reset
         if rst_execute or rst_load = '1' then
-            state <= RESET;
+            state <= FETCH -- might have to oadd an extra clk or state
         end if;
 
         case (state) is
-        when RESET   =>
-            -- distinguish between both resets here
-            if rst_load = '1' then
-                pc_addrss <= x"0002";
-            elsif rst_execute = '1' then
-                pc_addrss <= x"0000";
-            end if;
-            -- Control Signals
-            pc_load = '1';
-            State <= FETCH;
         when FETCH   =>
             -- is this implicit? arent we always receiving from this input?
-           
+           -- pc increment?
             -- Control Signals
-            pc_load = '0';
-            State <= DECODE;
+            pc_inc <= '1'; -- PC increments by 2
+            reg_wr_en <= '0';
+            mem_wr_en <= '0';
+            state <= DECODE;
         when DECODE  =>
         -- Decode the instruction 
+            pc_inc < = '0';
             opcode <= instruction(15 downto 9); 
-            reg_a  <= instruction( 8 downto 6);
-            reg_b  <= instruction( 5 downto 3);
-            reg_c  <= instruction( 2 downto 0);
-
-            State <= EXECUTE;  
+            state <= EXECUTE;  
 
         when EXECUTE =>
             case opcode is
@@ -135,7 +118,7 @@ begin
                 --     -- somehow do nothing..
                 when OP_ADD =>
                     alu_mode <= "001";
-                    reg_wr_en = '1';
+                    reg_wr_en = '0';
                     mem_wr_en = '0';
                     out_port_en = '0';
                 -- when OP_SUB =>
@@ -175,11 +158,15 @@ begin
                 -- when OP_IN=> 
                 --     -- do something
             end case;
-            State <= MEM_ACC;   
+            state <= MEM_ACC;   
         when MEM_ACC =>
+             -- memery access for Load store instructions
              State <= W_BACK;    
         when W_BACK  =>
-            State <= FETCH;  
+            -- result gets written back to register
+            -- mem_wr_en = '0';
+            --reg_wr_en = '1';
+            state <= FETCH;  
         end case;
     end process;
 end Behavioral;
