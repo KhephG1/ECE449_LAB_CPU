@@ -27,8 +27,11 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity program_counter is
     Port(
+        rst_load:       in std_logic;
+        rst_execute:    in std_logic;
         load:           in std_logic;
         clk:            in std_logic;
+        inc;            in std_logic; -- maybe?
         address_in:     in  std_logic_vector(15 downto 0);
         address_out:    out std_logic_vector(15 downto 0)
     );
@@ -37,13 +40,17 @@ end program_counter;
 architecture Behavioral of program_counter is
     signal pc: std_logic_vector( 15 downto 0) := x"0000";
 begin
-    process(clk,load)
+    process(clk,inc,load)
     begin
-        if rising_edge(clk) then
-            if load ='1' then
+        if rising_edge(clk,rst) then
+            if rst_load then
+                address_out <= x"0002";
+            elsif rst_load then
+                address_out <= x"0000";
+            elsif load ='1' then
                 pc <= address_in;
-            else
-                pc <= std_logic_vector(unsigned(pc) + 4);
+            elsif inc = '1'
+                pc <= std_logic_vector(unsigned(pc) + 2);
             end if;
         end if;
            
