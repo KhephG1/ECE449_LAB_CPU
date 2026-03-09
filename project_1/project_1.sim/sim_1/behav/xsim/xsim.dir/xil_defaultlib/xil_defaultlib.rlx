@@ -1,0 +1,17 @@
+0.7
+2020.2
+May 22 2025
+00:13:55
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ALU/ALU.vhd,1773025495,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,alu,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Controller/controller_pipelined.vhd,1773025565,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/cpu_top_level.vhd,,,controller,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,1773026170,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/cpu_top_level.vhd,,,datapath,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ProgramCounter/programCounter.vhd,1773021365,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,program_counter,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/RegisterFile/registerfile.vhd,1772926753,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,register_file,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.gen/sources_1/ip/CPU_ROM/sim/CPU_ROM.v,1772993350,verilog,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,\CPU_ROM\,,,../../../../../../../../../../../../Xilinx/2025.1/Vivado/data/rsb/busdef,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.sim/sim_1/behav/xsim/glbl.v,1741209010,verilog,,,,glbl,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sim_1/new/cpu_top_level_testbench.vhd,1772992262,vhdl,,,,cpu_top_level_testbench,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/EX_MEM.vhd,1773024297,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,execute_register,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/ID_EX.vhd,1773024276,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,instruction_decode_register,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/MEM_WB.vhd,1773024302,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,write_back_register,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/cpu_top_level.vhd,1773024509,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sim_1/new/cpu_top_level_testbench.vhd,,,cpu_top_level,,,,,,,,
+C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/project_1/project_1.srcs/sources_1/new/instruction_fetch_register.vhd,1773017190,vhdl,C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd,,,instruction_fetch_register,,,,,,,,

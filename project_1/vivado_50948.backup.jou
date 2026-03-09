@@ -1,0 +1,27 @@
+#-----------------------------------------------------------
+# Vivado v2025.1 (64-bit)
+# SW Build 6140274 on Thu May 22 00:12:29 MDT 2025
+# IP Build 6138677 on Thu May 22 03:10:11 MDT 2025
+# SharedData Build 6139179 on Tue May 20 17:58:58 MDT 2025
+# Start of session at: Sun Mar  8 09:37:28 2026
+# Process ID         : 50948
+# Current directory  : G:/.shortcut-targets-by-id/1kz-GMdUMZQrW_csUrf8xrYj2o5lJhxGt/ECE 449 Lab/Source/ECE449_LAB_CPU-main/project_1
+# Command line       : vivado.exe -gui_launcher_event rodinguilauncherevent41996 G:\.shortcut-targets-by-id\1kz-GMdUMZQrW_csUrf8xrYj2o5lJhxGt\ECE 449 Lab\Source\ECE449_LAB_CPU-main\project_1\project_1.xpr
+# Log file           : G:/.shortcut-targets-by-id/1kz-GMdUMZQrW_csUrf8xrYj2o5lJhxGt/ECE 449 Lab/Source/ECE449_LAB_CPU-main/project_1/vivado.log
+# Journal file       : G:/.shortcut-targets-by-id/1kz-GMdUMZQrW_csUrf8xrYj2o5lJhxGt/ECE 449 Lab/Source/ECE449_LAB_CPU-main/project_1\vivado.jou
+# Running On         : reckons-laptop
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz
+# CPU Frequency      : 2803 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 38334 MB
+# Swap memory        : 12884 MB
+# Total Virtual      : 51219 MB
+# Available Virtual  : 21061 MB
+#-----------------------------------------------------------
+start_gui
+open_project {G:/.shortcut-targets-by-id/1kz-GMdUMZQrW_csUrf8xrYj2o5lJhxGt/ECE 449 Lab/Source/ECE449_LAB_CPU-main/project_1/project_1.xpr}
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 

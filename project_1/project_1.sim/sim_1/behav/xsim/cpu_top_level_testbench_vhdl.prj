@@ -1,0 +1,16 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../../ALU/ALU.vhd" \
+"../../../../project_1.srcs/sources_1/new/EX_MEM.vhd" \
+"../../../../project_1.srcs/sources_1/new/ID_EX.vhd" \
+"../../../../project_1.srcs/sources_1/new/MEM_WB.vhd" \
+"../../../../../Controller/controller_pipelined.vhd" \
+"../../../../../ProgramCounter/programCounter.vhd" \
+"../../../../project_1.srcs/sources_1/new/instruction_fetch_register.vhd" \
+"../../../../../RegisterFile/registerfile.vhd" \
+"../../../../../Data Path/datapath.vhd" \
+"../../../../project_1.srcs/sources_1/new/cpu_top_level.vhd" \
+"../../../../project_1.srcs/sim_1/new/cpu_top_level_testbench.vhd" \
+
+# Do not sort compile order
+nosort

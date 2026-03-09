@@ -27,34 +27,33 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity program_counter is
     Port(
+        clk:            in std_logic;
         rst_load:       in std_logic;
         rst_execute:    in std_logic;
         load:           in std_logic;
-        clk:            in std_logic;
-        inc;            in std_logic; -- maybe?
-        address_in:     in  std_logic_vector(15 downto 0);
-        address_out:    out std_logic_vector(15 downto 0)
+        address_in:     in  std_logic_vector(8 downto 0);
+        address_out:    out std_logic_vector(8 downto 0)
     );
 end program_counter;
 
 architecture Behavioral of program_counter is
-    signal pc: std_logic_vector( 15 downto 0) := x"0000";
+    
 begin
-    process(clk,inc,load)
+    process(clk, rst_load, rst_execute)
+    variable pc: std_logic_vector( 8 downto 0) := (others => '0');
     begin
-        if rising_edge(clk,rst) then
-            if rst_load then
-                address_out <= x"0002";
-            elsif rst_load then
-                address_out <= x"0000";
-            elsif load ='1' then
-                pc <= address_in;
-            elsif inc = '1'
-                pc <= std_logic_vector(unsigned(pc) + 2);
+        if (rst_load = '1') then
+            pc := "000000010";
+        elsif (rst_execute = '1') then
+            pc := "000000000";
+        elsif rising_edge(clk) then
+            if (load = '1') then
+                pc := address_in;
+            else
+                pc := std_logic_vector(unsigned(pc) + 1);
             end if;
         end if;
-           
-    address_out <= pc;
-    
+        address_out <= pc;
+
     end process;
 end Behavioral;
