@@ -26,6 +26,7 @@ entity ALU is
     Port ( 
         op1        : in  STD_LOGIC_VECTOR (15 downto 0); -- Operand 1 (R[rb])
         op2        : in  STD_LOGIC_VECTOR (15 downto 0); -- Operand 2 (R[rc])
+        alu_rst    : in std_logic;
         alu_mode   : in  STD_LOGIC_VECTOR (2 downto 0);  -- Control signal from Decoder
         alu_result : out STD_LOGIC_VECTOR (15 downto 0); -- 16-bit computed result
         flag_z     : out STD_LOGIC;                      -- Zero flag 
@@ -38,19 +39,24 @@ architecture Behavioral of ALU is
 begin
     
   
-    process(op1, op2, alu_mode)
+    process(op1, op2, alu_mode, alu_rst)
         
         variable temp_result : STD_LOGIC_VECTOR(15 downto 0);
     begin
  
         temp_result := (others => '0');
-
-
+        
+        if(alu_rst = '1') then
+            flag_z <= '0';
+            flag_n <= '0';
+        end if;
         case alu_mode is
+            when "000" =>
+                --NOP
+                temp_result := std_logic_vector(signed(op1));
             when "001" => 
                 --ADD
                 temp_result := std_logic_vector(signed(op1) + signed(op2));
-                
             when "010" => 
                 -- SUB
                temp_result := std_logic_vector(signed(op1) - signed(op2));
@@ -63,12 +69,13 @@ begin
                 temp_result := op1 nand op2;
             when "101" => 
                 --SLL
-                temp_result := std_logic_vector(shift_left(unsigned(op1),to_integer(unsigned(op2))));
+                temp_result := std_logic_vector(shift_left(unsigned(op2),to_integer(unsigned(op1))));
             when "110" =>
                 --SRL 
-                temp_result := std_logic_vector(shift_right(unsigned(op1),to_integer(unsigned(op2))));
+                temp_result := std_logic_vector(shift_right(unsigned(op2),to_integer(unsigned(op1))));
             when "111" =>
                 --TEST
+                temp_result := std_logic_vector(signed(op2));
                 if to_integer(signed(op1)) = 0 then 
                     flag_z <= '1';
                 else

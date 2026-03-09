@@ -1,0 +1,2 @@
+CPU_ROM.v,verilog,xil_defaultlib,../../../../project_1.gen/sources_1/ip/CPU_ROM/sim/CPU_ROM.v,incdir="../../../../../../../../../../../../Xilinx/2025.1/Vivado/data/rsb/busdef"
+glbl.v,Verilog,xil_defaultlib,glbl.v
