@@ -37,7 +37,8 @@ entity controller is
     clk:            in std_logic;
     rst_load:       in std_logic;
     rst_execute:    in std_logic;
-    instruction:         in std_logic_vector(15 downto 0);
+    opcode:         in std_logic_vector(6 downto 0);
+    mem_data_out:   in std_logic_vector(15 downto 0); -- data read from ram
 
     flag_z:         in std_logic;
     flag_n:         in std_logic;
@@ -46,30 +47,21 @@ entity controller is
     -- Register and Memory Control Signals
     reg_wr_en:      out std_logic; -- Write back result to Register File
     mem_wr_en:      out std_logic; -- Write back result to Memory
-    ra : out std_logic_vector(2 downto 0);
-    rb : out std_logic_vector(2 downto 0) ;
-    rc : out std_logic_vector(2 downto 0);
-    -- Program Counter Control Signals
-    pc_load:        out std_logic;
-    pc_inc:         out std_logic;
+  
+    mem_addr:       out std_logic_vector(15 downto 0);  -- address for LOAD/STORE
+    em_data_in:     out std_logic_vector(15 downto 0);  -- data to write for STORE
     
+    -- Program Counter Control Signals
+    pc_mode:        out std_logic; ---
+    pc_load:        out std_logic;
+
     -- ALU Control Signals
     alu_mode:       out std_logic_vector(2 downto 0);
-    
-    -- ROM control Signals
-    rom_en:         out std_logic;
-    
-    --I/O
-    out_port_en:    out std_logic;
-    in_port_en: out std_logic;
-    -- datapath outputs
-    if_id_en:       out std_logic;
-    id_ex_en: out std_logic;
-    ex_mem_en: out std_logic;
-    mem_wb_en: out std_logic;
-    
-    --misc
-    cl: out std_logic_vector(3 downto 0)
+    alu_op1:        out std_logic; -- not sure if it should be generic op1 or specific to ALU
+    alu_op2:        out std_logic
+    alu_src:        out std_logic;
+
+    out_port_en:    out std_logic
 
     );
 end controller;
@@ -101,134 +93,80 @@ architecture Behavioral of controller is
     begin
     if rising_edge(clk) then 
         -- Implement synchronous reset
-        if (rst_execute = '1' or rst_load = '1') then
-            -- reset all controller outputs
+        if rst_execute or rst_load = '1' then
+            state <= FETCH -- might have to oadd an extra clk or state
+        end if;
+
+        case (state) is
+        when FETCH   =>
+            -- is this implicit? arent we always receiving from this input?
+           -- pc increment?
+            -- Control Signals
+            pc_inc <= '1'; -- PC increments by 2
             reg_wr_en <= '0';
             mem_wr_en <= '0';
-            ra <= "000";
-            rb <= "000";
-            rc <= "000";
-            pc_load <= '0';
-            pc_inc <= '0';
-            alu_mode <= "000";
-            rom_en <= '0';
-            out_port_en <= '0';
-            in_port_en <= '0';
-            if_id_en <= '0';
-            id_ex_en <= '0';
-            ex_mem_en <= '0';
-            mem_wb_en <= '0';
-            cl <= "0000";
-            state <= RESET; -- might have to oadd an extra clk or state
-        else
+            state <= DECODE;
+        when DECODE  =>
+        -- Decode the instruction 
+            pc_inc < = '0';
+            opcode <= instruction(15 downto 9); 
+            state <= EXECUTE;  
 
-            case (state) is
-            when RESET =>
-                rom_en <= '1';
-                if_id_en <= '1'; 
-                state <= FETCH;
-            when FETCH   =>
-                -- Control Signals
-                rom_en <= '0';
-                if_id_en <= '0'; 
-                pc_inc <= '0';
-                id_ex_en <= '1'; 
-                state <= DECODE;
-            when DECODE  =>
-            -- Decode the instruction 
-                pc_inc <= '0';
-                id_ex_en <= '0';
-                ex_mem_en <= '1';  
-                case instruction(15 downto 9) is
-                    -- when OP_NOP =>
-                    --     -- somehow do nothing..
-                    when OP_ADD =>
-                        ra <= instruction(8 downto 6);
-                        rb <= instruction(5 downto 3);
-                        rc <= instruction(2 downto 0);
-                        alu_mode <= "001";
-                        reg_wr_en <= '0';
-                        mem_wr_en <= '0';
-                        out_port_en <= '0';
-                    when OP_SUB =>
-                         alu_mode <= "010";
-                         ra <= instruction(8 downto 6);
-                         rb <= instruction(5 downto 3);
-                         rc <= instruction(2 downto 0);
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_MUL =>
-                         alu_mode  <= "011";
-                         ra <= instruction(8 downto 6);
-                         rb <= instruction(5 downto 3);
-                         rc <= instruction(2 downto 0);
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_NAND =>
-                         alu_mode <= "100";
-                         ra <= instruction(8 downto 6);
-                         rb <= instruction(5 downto 3);
-                         rc <= instruction(2 downto 0);
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_SHL =>
-                         alu_mode <= "101";
-                         ra <= instruction(8 downto 6);
-                         cl <= instruction(3 downto 0);
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_SHR =>
-                         alu_mode <= "110";
-                         ra <= instruction(8 downto 6);
-                         cl <= instruction(3 downto 0);
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_TEST=>
-                         alu_mode <= "111";
-                         reg_wr_en <= '1';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                     when OP_OUT=>    
-                         out_port_en <= '1';
-                         reg_wr_en <= '0';
-                         mem_wr_en <= '0';
-                         out_port_en <= '0';
-                    when OP_IN=>
-                        ra <= instruction(8 downto 6); 
-                        in_port_en <= '1';
-                        reg_wr_en <= '1';
-                        mem_wr_en <= '0';
-                when others =>
-                    null;
-                end case;
-                state <= EXECUTE;  
-                
-            when EXECUTE =>
-                ex_mem_en <= '0';
-                mem_wb_en <= '1';
-                state <= MEM_ACC;   
-            when MEM_ACC =>
-                 -- memery access for Load store instructions
-                 mem_wb_en <= '0';
-                 State <= W_BACK;    
-            when W_BACK  =>
-                -- result gets written back to register
-                -- mem_wr_en = '0';
-                --reg_wr_en = '1';
-                rom_en <= '1';
-                mem_wb_en <= '0';
-                if_id_en <= '1'; 
-                pc_inc <= '1';
-                state <= FETCH;  
-            when others =>
-                null;
+        when EXECUTE =>
+            case opcode is
+                -- when OP_NOP =>
+                --     -- somehow do nothing..
+                when OP_ADD =>
+                    alu_mode <= "001";
+                    reg_wr_en = '0';
+                    mem_wr_en = '0';
+                    out_port_en = '0';
+                -- when OP_SUB =>
+                --     alu_mode <= "010";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_MUL =>
+                --     alu_mode  <= "011";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_MUL =>
+                --     alu_mode <= "100";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_SHL =>
+                --     alu_mode <= "101";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_SHR =>
+                --     alu_mode <= "110";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_TEST=>
+                --     alu_mode <= "111";
+                --     reg_wr_en = '1';
+                --     mem_wr_en = '0';
+                --     out_port_en = '0';
+                -- when OP_OUT=>    
+                --     out_port_en = '1';
+                --     reg_wr_en = '0';
+                --     mem_wr_en = '0';
+                -- when OP_IN=> 
+                --     -- do something
             end case;
-        end if;
-     end if;
+            state <= MEM_ACC;   
+        when MEM_ACC =>
+             -- memery access for Load store instructions
+             State <= W_BACK;    
+        when W_BACK  =>
+            -- result gets written back to register
+            -- mem_wr_en = '0';
+            --reg_wr_en = '1';
+            state <= FETCH;  
+        end case;
     end process;
 end Behavioral;
