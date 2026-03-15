@@ -39,8 +39,9 @@ end controller;
 
 architecture behavioral of controller is
 
--- A format instructions:    
+-- Instructions:    
     subtype opcode_t is std_logic_vector (6 downto 0);
+    -- Format A Instructions: 
     constant OP_NOP : opcode_t  :=  "0000000";
     constant OP_ADD  : opcode_t := "0000001";
     constant OP_SUB  : opcode_t := "0000010";
@@ -51,6 +52,15 @@ architecture behavioral of controller is
     constant OP_TEST : opcode_t := "0000111";
     constant OP_OUT  : opcode_t := "0100000";
     constant OP_IN   : opcode_t := "0100001";
+    -- Format B Instructions
+    constant OP_BRR  : opcode_t := "1000000";
+    constant OP_BRR_N: opcode_t := "1000001"; 
+    constant OP_BRR_Z: opcode_t := "1000010"; 
+    constant OP_BR   : opcode_t := "1000011"; 
+    constant OP_BR_N : opcode_t := "1000100"; 
+    constant OP_BR_Z : opcode_t := "1000101"; 
+    constant OP_SUB : opcode_t  := "1000110";
+    constant OP_RTRN : opcode_t := "1000111"; 
 begin
 
 process(opcode,rst_load,rst_execute)
@@ -128,6 +138,14 @@ begin
                 alu_src <= "10";
                 out_port_en <= '0';
                 reg_wr_en <= '1';
+            when OP_BRR =>
+            when OP_BRR_Z =>
+            when OP_BRR_N =>
+            when OP_BR =>
+            when OP_BR_N =>
+            when OP_BR_Z =>
+            when OP_SUB =>
+            when OP_RTRN =>
             when others =>
                 null;
         end case;
