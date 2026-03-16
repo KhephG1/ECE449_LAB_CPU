@@ -71,15 +71,17 @@ signal rom_en : std_logic := '1'; --hard code to 1 until we have a reason not to
 signal memory_instruction : std_logic_vector(15 downto 0); -- ROM output
 
 --IF_ID
-signal if_id_data_out : std_logic_vector(15 downto 0);
+signal if_id_data_out : std_logic_vector(31 downto 0);
+alias if_id_pc_out is if_id_data_out(31 downto 16); -- passing pc through
 alias if_id_opcode_out is if_id_data_out(15 downto 9);
 alias if_id_ra_out is if_id_data_out(8 downto 6);
 alias if_id_rb_out is if_id_data_out(5 downto 3);
 alias if_id_rc_out is if_id_data_out(2 downto 0);
 alias if_id_cl_out is if_id_data_out(3 downto 0);
 
+
 --ID_EX
-signal id_ex_data_out : std_logic_vector(65 downto 0);
+signal id_ex_data_out : std_logic_vector(66 downto 0);
 alias id_ex_d1_out is id_ex_data_out(15 downto 0);
 alias id_ex_d2_out is id_ex_data_out(31 downto 16);
 alias id_ex_in_port_out is id_ex_data_out(47 downto 32);
@@ -92,6 +94,7 @@ alias id_ex_out_port_en_out is id_ex_data_out(61);
 alias id_ex_out_brr_en_out is id_ex_data_out(62); -- relative branching
 alias id_ex_out_br_en_out is id_ex_data_out(63); -- non-relative branching
 alias id_ex_out_br_cond_out is id_ex_data_out(65 downto 64); -- branch condition
+alias id_ex_pc_out is id_ex_data_out(79 downto 65); -- pass along pc count
 
 --EX_MEM
 signal ex_mem_data_out: std_logic_vector(22 downto 0);
@@ -171,7 +174,9 @@ ID_EX_inst: entity work.instruction_decode_register
   port map (
      clk => clk,
      enable => id_ex_en,
-     data_in => br_en & -- branching
+     data_in => pc &
+                br_cond &
+                br_en & -- branching
                 brr_en & -- relative branching
                 out_port_en &
                 if_id_ra_out &
