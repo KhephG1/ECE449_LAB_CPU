@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use IEEE.numeric_std.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -44,7 +44,6 @@ entity datapath is
         alu_src      : in std_logic_vector(1 downto 0);
         reg_rst      : in std_logic;
         reg_wr_en    : in  std_logic;                     -- register file write enable
-        pc_load      : in  std_logic;                      -- load new PC address (for branches)
         --mem_wr_en : in std_logic; -- write ALU result to memory instead of to register (for store)
         
         --Pipeline Registers
@@ -60,7 +59,14 @@ entity datapath is
         ra_op:      in std_logic;
         
         out_port     : out std_logic_vector(15 downto 0);
-        opcode       : out std_logic_vector(6 downto 0)
+        opcode       : out std_logic_vector(6 downto 0);
+        
+        --Branch Logic
+        brr_en : in std_logic;
+        br_en : in std_logic;
+        br_cond : in std_logic_vector(2 downto 0)
+        
+        
     );
 end datapath;
 
@@ -78,10 +84,12 @@ alias if_id_ra_out is if_id_data_out(8 downto 6);
 alias if_id_rb_out is if_id_data_out(5 downto 3);
 alias if_id_rc_out is if_id_data_out(2 downto 0);
 alias if_id_cl_out is if_id_data_out(3 downto 0);
+alias if_id_displ_out is if_id_data_out(8 downto 0);
+alias if_id_disps_out is if_id_data_out(6 downto 0);
 
 
 --ID_EX
-signal id_ex_data_out : std_logic_vector(66 downto 0);
+signal id_ex_data_out : std_logic_vector(94 downto 0);
 alias id_ex_d1_out is id_ex_data_out(15 downto 0);
 alias id_ex_d2_out is id_ex_data_out(31 downto 16);
 alias id_ex_in_port_out is id_ex_data_out(47 downto 32);
@@ -95,6 +103,9 @@ alias id_ex_out_brr_en_out is id_ex_data_out(62); -- relative branching
 alias id_ex_out_br_en_out is id_ex_data_out(63); -- non-relative branching
 alias id_ex_out_br_cond_out is id_ex_data_out(65 downto 64); -- branch condition
 alias id_ex_pc_out is id_ex_data_out(79 downto 65); -- pass along pc count
+alias id_ex_disps_out is id_ex_data_out(85 downto 80);
+alias id_ex_displ_out is id_ex_data_out(93 downto 86);
+alias id_ex_pc_load_out is id_ex_data_out(94);
 
 --EX_MEM
 signal ex_mem_data_out: std_logic_vector(22 downto 0);
@@ -126,6 +137,9 @@ signal alu_flag_n    : std_logic;
 signal op1, op2 : std_logic_vector(15 downto 0);
 signal alu_result: std_logic_vector(15 downto 0);
 
+--PC Signals
+signal pc_load : std_logic;
+
 begin
 
 PC_inst : entity work.program_counter
@@ -150,7 +164,7 @@ IF_ID_inst: entity work.instruction_fetch_register
   port map (
     clk        => clk,
     enable     => if_id_en,
-    data_in => memory_instruction,
+    data_in => pc_out & memory_instruction,
     data_out => if_id_data_out
 );
 
@@ -174,7 +188,10 @@ ID_EX_inst: entity work.instruction_decode_register
   port map (
      clk => clk,
      enable => id_ex_en,
-     data_in => pc &
+     data_in => pc_load &
+                if_id_displ_out &
+                if_id_disps_out & 
+                if_id_pc_out &
                 br_cond &
                 br_en & -- branching
                 brr_en & -- relative branching
@@ -238,35 +255,34 @@ end process;
 
 -- Branching logic
 -- pc_load might have to change
-process(id_ex_br_en_out, id_ex_brr_en_out, id_ex_br_cond_out, alu_flag_n, alu_flag_z) begin
-    pc_load <= '0';  -- default
-    case id_ex_br_cond_out is
+process(id_ex_out_br_en_out, id_ex_out_brr_en_out, id_ex_out_br_cond_out, alu_flag_n, alu_flag_z) begin
+    case id_ex_out_br_cond_out is
         when "00" =>
-            if id_ex_brr_en_out = '1' or id_ex_br_en_out = '1' then
+            if id_ex_out_br_en_out = '1' then
                 pc_load <= '1';
-                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS must be pushed through pipeline
+                pc_branch_address <= std_logic_vector(signed((id_ex_d2_out(7 downto 0)&'0')) + signed(id_ex_pc_out)); -- change PC_ALIAS must be pushed through pipeline
+            elsif id_ex_out_brr_en_out = '1' then
+                pc_branch_address <= std_logic_vector(signed((id_ex_displ_out(7 downto 0)&'0')) + signed(id_ex_pc_out)); -- change PC_ALIAS must be pushed through pipeline
             end if;
-            
         when "01" =>
             if alu_flag_n = '1' then
                 pc_load <= '1';
-                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS
-            else
+                pc_branch_address <= std_logic_vector(signed(id_ex_d1_out(8 downto 0)&'0') + signed(id_ex_pc_out)); -- change PC_ALIAS
+            else 
                 pc_load <= '0';
-                pc_branch_address <= 2 + PC_ALIAS; 
             end if;
             
         when "10" =>
             if alu_flag_z = '1' then
                 pc_load <= '1';
-                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS
+                pc_branch_address <= std_logic_vector(signed(id_ex_d1_out(8 downto 0)&'0') + signed(id_ex_pc_out)); -- change PC_ALIAS
             else
                 pc_load <= '0';
-                pc_branch_address <= 2 + PC_ALIAS; 
             end if;
             
+            
         when others =>
-            pc_load <= '0';
+          pc_load <= '0';
     end case;
 end process;
 

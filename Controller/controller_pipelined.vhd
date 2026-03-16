@@ -17,11 +17,9 @@ entity controller is
     --mem_wr_en:      out std_logic; -- Write back result to Memory
     
     -- Branching outputs
-    brr_en          out std_logic;
-    br_en           out std_logic;
-    br_cond         out std_logic_vector (2 downto 0);
-    -- Program Counter Control Signals
-    pc_load:        out std_logic;
+    brr_en:          out std_logic;
+    br_en:           out std_logic;
+    br_cond:         out std_logic_vector (2 downto 0);
     
     -- ALU Control Signals
     alu_mode:       out std_logic_vector(2 downto 0);
@@ -63,7 +61,7 @@ architecture behavioral of controller is
     constant OP_BR   : opcode_t := "1000011"; 
     constant OP_BR_N : opcode_t := "1000100"; 
     constant OP_BR_Z : opcode_t := "1000101"; 
-    constant OP_SUB  : opcode_t  := "1000110";
+    constant OP_BSUB  : opcode_t  := "1000110";
     constant OP_RTRN : opcode_t := "1000111"; 
 begin
 
@@ -143,24 +141,26 @@ begin
                 out_port_en <= '0';
                 reg_wr_en <= '1';
             when OP_BRR =>
-            br_cond <= "00";
-            brr_en <= '1';
+                br_cond <= "00";
+                brr_en <= '1';
+                ra_op <= '1';
+                pc_load <= '1';
             when OP_BRR_N =>
-            br_cond <= "01";
-            brr_en <= '1';
+                br_cond <= "01";
+                brr_en <= '1';
             when OP_BRR_Z =>
-            br_cond <= "10";
-            brr_en <= '1';
+                br_cond <= "10";
+                brr_en <= '1';
             when OP_BR =>
-            br_cond <= "00";
-            br_en <= '1';
+                br_cond <= "00";
+                br_en <= '1';
             when OP_BR_N =>
-            br_cond <= "01";
-            br_en <= '1';
+                br_cond <= "01";
+                br_en <= '1';
             when OP_BR_Z =>
-            br_cond <= "10";
-            br_en <= '1';
-            when OP_SUB =>
+                br_cond <= "10";
+                br_en <= '1';
+            when OP_BSUB =>
             -- load pc+2 to R7
             -- load op1 (ra) to pc
             when OP_RTRN =>

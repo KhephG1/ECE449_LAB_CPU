@@ -29,6 +29,9 @@ architecture Behavioral of cpu_top_level is
     signal alu_rst : std_logic;
     signal ra_op   : std_logic;
     signal out_port_en : std_logic;
+    signal brr_en : std_logic;
+    signal br_en : std_logic;
+    signal br_cond : std_logic_vector(2 downto 0);
 begin
 
 datapath : entity work.datapath
@@ -40,7 +43,6 @@ port map(
     alu_src=> alu_src,
     reg_wr_en=>reg_wr_en,
     --mem_wr_en=>mem_wr_en,
-    pc_load=>pc_load,
     if_id_en=>if_id_en,
     id_ex_en=>id_ex_en,
     ex_mem_en=> ex_mem_en,
@@ -51,7 +53,10 @@ port map(
     reg_rst => reg_rst,
     opcode => opcode,
     out_port_en => out_port_en,
-    ra_op => ra_op
+    ra_op => ra_op,
+    brr_en => brr_en,
+    br_en => br_en,
+    br_cond => br_cond
 );
 
 
@@ -61,7 +66,6 @@ port map(
     rst_execute=>rst_execute, 
     rst_load=>rst_load, 
     reg_wr_en =>reg_wr_en,
-    pc_load=>pc_load,
     alu_mode=>alu_mode,
     alu_src=>alu_src,
     reg_rst => reg_rst,
@@ -72,7 +76,10 @@ port map(
     mem_wb_en => mem_wb_en,
     opcode=> opcode,
     out_port_en => out_port_en,
-    ra_op => ra_op
+    ra_op => ra_op,
+    brr_en => brr_en,
+    br_en => br_en,
+    br_cond => br_cond
 );
  
 end Behavioral;
