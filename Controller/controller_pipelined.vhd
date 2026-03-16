@@ -16,7 +16,10 @@ entity controller is
     ra_op:          out std_logic; -- Whether we should get operand 2 from ra field or not (for out test and shift)
     --mem_wr_en:      out std_logic; -- Write back result to Memory
     
-    
+    -- Branching outputs
+    brr_en          out std_logic;
+    br_en           out std_logic;
+    br_cond         out std_logic_vector (2 downto 0);
     -- Program Counter Control Signals
     pc_load:        out std_logic;
     
@@ -24,6 +27,7 @@ entity controller is
     alu_mode:       out std_logic_vector(2 downto 0);
     alu_src:        out std_logic_vector(1 downto 0);
     alu_rst:        out std_logic;
+
     -- datapath outputs
     if_id_en:  out std_logic;
     id_ex_en: out std_logic;
@@ -42,7 +46,7 @@ architecture behavioral of controller is
 -- Instructions:    
     subtype opcode_t is std_logic_vector (6 downto 0);
     -- Format A Instructions: 
-    constant OP_NOP : opcode_t  :=  "0000000";
+    constant OP_NOP : opcode_t  := "0000000";
     constant OP_ADD  : opcode_t := "0000001";
     constant OP_SUB  : opcode_t := "0000010";
     constant OP_MUL  : opcode_t := "0000011";
@@ -59,7 +63,7 @@ architecture behavioral of controller is
     constant OP_BR   : opcode_t := "1000011"; 
     constant OP_BR_N : opcode_t := "1000100"; 
     constant OP_BR_Z : opcode_t := "1000101"; 
-    constant OP_SUB : opcode_t  := "1000110";
+    constant OP_SUB  : opcode_t  := "1000110";
     constant OP_RTRN : opcode_t := "1000111"; 
 begin
 
@@ -139,12 +143,26 @@ begin
                 out_port_en <= '0';
                 reg_wr_en <= '1';
             when OP_BRR =>
-            when OP_BRR_Z =>
+            br_cond <= "00";
+            brr_en <= '1';
             when OP_BRR_N =>
+            br_cond <= "01";
+            brr_en <= '1';
+            when OP_BRR_Z =>
+            br_cond <= "10";
+            brr_en <= '1';
             when OP_BR =>
+            br_cond <= "00";
+            br_en <= '1';
             when OP_BR_N =>
+            br_cond <= "01";
+            br_en <= '1';
             when OP_BR_Z =>
+            br_cond <= "10";
+            br_en <= '1';
             when OP_SUB =>
+            -- load pc+2 to R7
+            -- load op1 (ra) to pc
             when OP_RTRN =>
             when others =>
                 null;

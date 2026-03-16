@@ -79,7 +79,7 @@ alias if_id_rc_out is if_id_data_out(2 downto 0);
 alias if_id_cl_out is if_id_data_out(3 downto 0);
 
 --ID_EX
-signal id_ex_data_out : std_logic_vector(61 downto 0);
+signal id_ex_data_out : std_logic_vector(65 downto 0);
 alias id_ex_d1_out is id_ex_data_out(15 downto 0);
 alias id_ex_d2_out is id_ex_data_out(31 downto 16);
 alias id_ex_in_port_out is id_ex_data_out(47 downto 32);
@@ -88,7 +88,10 @@ alias id_ex_alu_mode_out is  id_ex_data_out(54 downto 52);
 alias id_ex_alu_src_out is id_ex_data_out(56 downto 55);
 alias id_ex_wb_en_out is id_ex_data_out(57);
 alias id_ex_ra_out is id_ex_data_out(60 downto 58);
-alias id_ex_out_port_en_out is id_ex_data_out(61);
+alias id_ex_out_port_en_out is id_ex_data_out(61); 
+alias id_ex_out_brr_en_out is id_ex_data_out(62); -- relative branching
+alias id_ex_out_br_en_out is id_ex_data_out(63); -- non-relative branching
+alias id_ex_out_br_cond_out is id_ex_data_out(65 downto 64); -- branch condition
 
 --EX_MEM
 signal ex_mem_data_out: std_logic_vector(22 downto 0);
@@ -105,7 +108,6 @@ alias mem_wb_alu_result_out is mem_wb_data_out(15 downto 0);
 alias mem_wb_wb_en_out is mem_wb_data_out(16);
 alias mem_wb_ra_out is mem_wb_data_out(19 downto 17);
 alias mem_wb_out_port_en_out is mem_wb_data_out(20);
-
 
 --Register file
 signal rd_data1 : std_logic_vector(15 downto 0);
@@ -169,7 +171,9 @@ ID_EX_inst: entity work.instruction_decode_register
   port map (
      clk => clk,
      enable => id_ex_en,
-     data_in => out_port_en &
+     data_in => br_en & -- branching
+                brr_en & -- relative branching
+                out_port_en &
                 if_id_ra_out &
                 reg_wr_en &
                 alu_src &
@@ -226,5 +230,40 @@ if(mem_wb_out_port_en_out = '1') then
     out_port <= mem_wb_alu_result_out;
 end if;
 end process;
+
+-- Branching logic
+-- pc_load might have to change
+process(id_ex_br_en_out, id_ex_brr_en_out, id_ex_br_cond_out, alu_flag_n, alu_flag_z) begin
+    pc_load <= '0';  -- default
+    case id_ex_br_cond_out is
+        when "00" =>
+            if id_ex_brr_en_out = '1' or id_ex_br_en_out = '1' then
+                pc_load <= '1';
+                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS must be pushed through pipeline
+            end if;
+            
+        when "01" =>
+            if alu_flag_n = '1' then
+                pc_load <= '1';
+                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS
+            else
+                pc_load <= '0';
+                pc_branch_address <= 2 + PC_ALIAS; 
+            end if;
+            
+        when "10" =>
+            if alu_flag_z = '1' then
+                pc_load <= '1';
+                pc_branch_address <= id_ex_d1_out(8 downto 0)*2 + PC_ALIAS; -- change PC_ALIAS
+            else
+                pc_load <= '0';
+                pc_branch_address <= 2 + PC_ALIAS; 
+            end if;
+            
+        when others =>
+            pc_load <= '0';
+    end case;
+end process;
+
 
 end  behavioural;
