@@ -39,11 +39,11 @@ process begin
 end process;
 
 process begin
-    test_in_port <= std_logic_vector(to_unsigned(16,16));
+    test_in_port <= std_logic_vector(to_unsigned(7,16));
     wait for 6 ns;
     test_in_port <= std_logic_vector(to_unsigned(1,16));
     wait for 2 ns;
-    test_in_port <= std_logic_vector(to_unsigned(6,16));
+    --test_in_port <= std_logic_vector(to_unsigned(6,16));
     wait;
 end process;
 

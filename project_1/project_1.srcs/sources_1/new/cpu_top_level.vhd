@@ -15,7 +15,7 @@ end cpu_top_level;
 
 architecture Behavioral of cpu_top_level is
     signal opcode : std_logic_vector(6 downto 0) := (others => '0');
-    signal reg_wr_en,pc_load,if_id_en,id_ex_en,ex_mem_en,mem_wb_en : std_logic := '0';
+    signal reg_wr_en,pc_load: std_logic := '0';
     signal alu_mode : std_logic_vector(3 downto 0) := (others => '0');
     signal alu_src : std_logic_vector( 1 downto 0) := (others =>'0'); 
     signal reg_rst : std_logic;
@@ -39,10 +39,6 @@ port map(
     alu_src=> alu_src,
     reg_wr_en=>reg_wr_en,
     --mem_wr_en=>mem_wr_en,
-    if_id_en=>if_id_en,
-    id_ex_en=>id_ex_en,
-    ex_mem_en=> ex_mem_en,
-    mem_wb_en => mem_wb_en,
     rst_load=>rst_load,
     rst_execute=>rst_execute,
     alu_rst => alu_rst,
@@ -68,11 +64,7 @@ port map(
     alu_mode=>alu_mode,
     alu_src=>alu_src,
     reg_rst => reg_rst,
-    if_id_en=>if_id_en,
-    id_ex_en=>id_ex_en,
-    ex_mem_en=>ex_mem_en,
     alu_rst => alu_rst,
-    mem_wb_en => mem_wb_en,
     opcode=> opcode,
     out_port_en => out_port_en,
     ra_op => ra_op,

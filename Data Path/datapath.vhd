@@ -20,12 +20,6 @@ entity datapath is
         reg_rd_link  : in std_logic;
         --mem_wr_en : in std_logic; -- write ALU result to memory instead of to register (for store)
         
-        --Pipeline Registers
-        if_id_en:   in std_logic;
-        id_ex_en:   in std_logic;
-        ex_mem_en:  in std_logic;
-        mem_wb_en:  in std_logic;
-        
         --ALU
         alu_rst:    in std_logic;
         
@@ -46,18 +40,34 @@ end datapath;
 
 architecture behavioural of datapath is
 --pipeline register widths
-constant if_id_reg_width : integer := 41;
-constant id_ex_reg_width : integer := 92;
+constant if_id_reg_width : integer := 43;
+constant id_ex_reg_width : integer := 94;
 constant ex_mem_reg_width : integer := 23;
 constant mem_wb_reg_width : integer := 21;
+signal bubble : std_logic;
+
 --ROM
 signal rom_en : std_logic := '1'; --hard code to 1 until we have a reason not to
-signal memory_instruction : std_logic_vector(15 downto 0); -- ROM output
+signal ROM_douta : std_logic_vector(15 downto 0);
+
+--RAM
+signal memory_instruction : std_logic_vector(15 downto 0); -- RAM port a output
+signal ram_instruction_output : std_logic_vector(15 downto 0);
+signal ram_en_a, ram_en_b : std_logic := '1';
+signal ram_wea : std_logic_vector(1 downto 0) := "00";
+signal ram_addr_b : std_logic_vector(10 downto 0) := (others => '0');
+signal ram_dina : std_logic_vector(15 downto 0) := (others => '0');
+signal ram_doutb : std_logic_vector(15 downto 0);
+signal ram_rsta  : std_logic := '0';
+signal ram_rstb : std_logic := '0';
+signal ram_regcea : std_logic := '1';
+signal ram_regceb : std_logic := '1';
 
 --IF_ID
+signal if_id_rst : std_logic;
 signal if_id_data_out : std_logic_vector(if_id_reg_width - 1 downto 0);
-alias if_id_in_port_out is if_id_data_out(if_id_reg_width - 1 downto 25);
-alias if_id_pc_out is if_id_data_out(24 downto 16); -- passing pc through
+alias if_id_in_port_out is if_id_data_out(if_id_reg_width - 1 downto 27);
+alias if_id_pc_out is if_id_data_out(26 downto 16); -- passing pc through
 alias if_id_opcode_out is if_id_data_out(15 downto 9);
 alias if_id_ra_out is if_id_data_out(8 downto 6);
 alias if_id_rb_out is if_id_data_out(5 downto 3);
@@ -81,9 +91,9 @@ alias id_ex_out_port_en_out is id_ex_data_out(62);
 alias id_ex_out_brr_en_out is id_ex_data_out(63); -- relative branching
 alias id_ex_out_br_en_out is id_ex_data_out(64); -- non-relative branching
 alias id_ex_out_br_cond_out is id_ex_data_out(66 downto 65); -- branch condition
-alias id_ex_pc_out is id_ex_data_out(75 downto 67); -- pass along pc count
-alias id_ex_disps_out is id_ex_data_out(81 downto 76);
-alias id_ex_displ_out is id_ex_data_out(90 downto 82);
+alias id_ex_pc_out is id_ex_data_out(77 downto 67); -- pass along pc count
+alias id_ex_disps_out is id_ex_data_out(83 downto 78);
+alias id_ex_displ_out is id_ex_data_out(92 downto 84);
 alias id_ex_pc_load_out is id_ex_data_out(id_ex_reg_width - 1);
 
 --EX_MEM
@@ -106,10 +116,10 @@ alias mem_wb_out_port_en_out is mem_wb_data_out(mem_wb_reg_width - 1);
 signal rd_data1 : std_logic_vector(15 downto 0);
 signal rd_data2 : std_logic_vector(15 downto 0);
 signal rd_idx2  : std_logic_vector(2 downto 0);
-signal rf_write_data : std_logic_vector(15 downto 0);
+signal pc_extended : std_logic_vector(15 downto 0);
 --PC signals
-signal pc_out         : std_logic_vector(8 downto 0); -- current PC address
-signal pc_branch_address : std_logic_vector(8 downto 0) := (others => '0'); --todo implement branching
+signal pc_out         : std_logic_vector(10 downto 0); -- current PC address
+signal pc_branch_address : std_logic_vector(10 downto 0) := (others => '0'); --todo implement branching
 -- ALU signals
 signal alu_flag_z    : std_logic;                      
 signal alu_flag_n    : std_logic;                      
@@ -135,17 +145,37 @@ ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
   PORT MAP (
     clka => clk, --ROM clock
     ena => rom_en, -- active high ROM enable
-    addra => pc_out, -- address input for the ROM tied to program counter output
-    douta => memory_instruction --ROM output tied to instruction fetch register
+    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
+    douta => ROM_douta --ROM output tied to instruction fetch register
 );
 
+ram_regcea <= '1' when (rst_load /= '0' or rst_execute /= '0') else '0';
+RAM_inst : entity work.RAM
+PORT MAP(
+        clka => clk,
+        clkb => clk,
+        ena  => ram_en_a,
+        enb => ram_en_b,
+        wea => ram_wea,
+        addra => pc_out,
+        addrb  => ram_addr_b,
+        dina   => ram_dina,
+        douta => memory_instruction,
+        doutb => ram_doutb,
+        rsta  => ram_rsta,
+        rstb  => ram_rstb,
+        regcea => ram_regcea,
+        regceb => ram_regceb
+);
+
+if_id_rst <= '1' when (bubble = '1' or rst_load  = '1' or rst_execute = '1') else '0';
 IF_ID_inst: entity work.pipeline_reg
   generic map(
     width => if_id_reg_width
   )
   port map (
     clk        => clk,
-    enable     => if_id_en,
+    rst => if_id_rst,
     data_in => 
     in_port &
     pc_out & 
@@ -156,8 +186,8 @@ IF_ID_inst: entity work.pipeline_reg
 opcode <= if_id_opcode_out;
 --read index two source mux
 rd_idx2 <= if_id_rc_out when ra_op = '0' else if_id_ra_out;
---writeback source mux
-rf_write_data <= std_logic_vector(unsigned(if_id_pc_out) + 1) when reg_wr_en_pc = '1' else mem_wb_alu_result_out; -- change this to 2 when using RAM
+--extend pc
+pc_extended <= std_logic_vector(resize(unsigned(if_id_pc_out),16));
 RF_inst : entity work.register_file
     port map(
         clk       => clk,
@@ -168,6 +198,7 @@ RF_inst : entity work.register_file
         rd_data2  => rd_data2,
         wr_index  => mem_wb_ra_out,
         wr_data   => mem_wb_alu_result_out,
+        pc => pc_extended,
         wr_enable => mem_wb_wb_en_out,
         wr_en_pc => reg_wr_en_pc,
         reg_rd_link => reg_rd_link   
@@ -179,7 +210,7 @@ ID_EX_inst: entity work.pipeline_reg
   )
   port map (
      clk => clk,
-     enable => id_ex_en,
+     rst => bubble,
      data_in => pc_load &
                 if_id_displ_out &
                 if_id_disps_out & 
@@ -214,23 +245,8 @@ ALU_inst : entity work.ALU
         flag_z     => alu_flag_z,
         flag_n     => alu_flag_n
 );
-   
-EX_MEM_inst: entity work.pipeline_reg
-  generic map(
-    width => ex_mem_reg_width
-  )
-  port map (
-     clk => clk,
-     enable => ex_mem_en,
-     data_in => id_ex_out_port_en_out &
-                id_ex_ra_out &
-                id_ex_wb_en_out &
-                alu_flag_n &
-                alu_flag_z &
-                alu_result,
-    data_out => ex_mem_data_out                
-); 
-
+  
+  
 BRANCH_CTRL: entity work.branch_controller
 port map(
     br_en => id_ex_out_br_en_out,
@@ -243,8 +259,25 @@ port map(
     pc => id_ex_pc_out,
     absolute_addr => id_ex_d2_out, --should be ra field output from register file
     pc_load => pc_load,
-    pc_branch_address => pc_branch_address
-);
+    pc_branch_address => pc_branch_address,
+    bubble => bubble
+); 
+   
+EX_MEM_inst: entity work.pipeline_reg
+  generic map(
+    width => ex_mem_reg_width
+  )
+  port map (
+     clk => clk,
+     rst => '0',
+     data_in => id_ex_out_port_en_out &
+                id_ex_ra_out &
+                id_ex_wb_en_out &
+                alu_flag_n &
+                alu_flag_z &
+                alu_result,
+    data_out => ex_mem_data_out                
+); 
 
 
 MEM_WB_inst: entity work.pipeline_reg
@@ -253,7 +286,7 @@ MEM_WB_inst: entity work.pipeline_reg
   )  
   port map (
      clk => clk,
-     enable => mem_wb_en,
+     rst => '0',
      data_in => ex_mem_out_port_en_out &
                 ex_mem_ra_out &
                 ex_mem_wb_en_out &

@@ -27,12 +27,6 @@ entity controller is
     alu_mode:       out std_logic_vector(3 downto 0);
     alu_src:        out std_logic_vector(1 downto 0);
     alu_rst:        out std_logic;
-
-    -- datapath outputs
-    if_id_en:  out std_logic;
-    id_ex_en: out std_logic;
-    ex_mem_en: out std_logic;
-    mem_wb_en: out std_logic;
     
     --I/O
    out_port_en : out std_logic
@@ -75,10 +69,6 @@ begin
         alu_mode <= "0000";
         alu_src <= "00";
         alu_rst <= '1';
-        if_id_en <= '1';
-        id_ex_en <= '1';
-        ex_mem_en <= '1';
-        mem_wb_en <= '1';
         reg_wr_en <= '0';
         reg_wr_en_pc <= '0';
         out_port_en <= '0';

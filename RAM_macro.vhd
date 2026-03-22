@@ -14,8 +14,8 @@ entity RAM is
         ena    : in  std_logic;
         enb    : in  std_logic;
         wea    : in  std_logic_vector(1 downto 0);
-        addra  : in  std_logic_vector(15 downto 0);
-        addrb  : in  std_logic_vector(15 downto 0);
+        addra  : in  std_logic_vector(10 downto 0);
+        addrb  : in  std_logic_vector(10 downto 0);
         dina   : in  std_logic_vector(15 downto 0);
         douta  : out std_logic_vector(15 downto 0);
         doutb  : out std_logic_vector(15 downto 0);
@@ -27,22 +27,27 @@ entity RAM is
 end entity RAM;
 
 architecture rtl of RAM is
+signal addressa : std_logic_vector(9 downto 0);
+signal addressb : std_logic_vector(9 downto 0);
 begin
+addressa <= addra(10 downto 1);
+addressb <= addrb(10 downto 1);
+
 xpm_memory_dpdistram_inst : xpm_memory_dpdistram
 generic map (
- ADDR_WIDTH_A => 16, -- DECIMAL. The word size of our processor is 16 bits
- ADDR_WIDTH_B => 16, -- DECIMAL
+ ADDR_WIDTH_A => 10, -- DECIMAL. The word size of our processor is 16 bits
+ ADDR_WIDTH_B => 10, -- DECIMAL
  BYTE_WRITE_WIDTH_A => 8, -- DECIMAL
  CLOCKING_MODE => "common_clock", -- String
- MEMORY_INIT_FILE => "none", -- String
+ MEMORY_INIT_FILE => "ctrl_haz.mem", -- String
  MEMORY_INIT_PARAM => "0", -- String
  MEMORY_OPTIMIZATION => "false", -- String
- MEMORY_SIZE => 1024, -- DECIMAL
+ MEMORY_SIZE => 8192, -- DECIMAL
  MESSAGE_CONTROL => 0, -- DECIMAL
  READ_DATA_WIDTH_A => 16, -- DECIMAL
  READ_DATA_WIDTH_B => 16, -- DECIMAL
- READ_LATENCY_A => 2, -- DECIMAL
- READ_LATENCY_B => 2, -- DECIMAL
+ READ_LATENCY_A => 0, -- DECIMAL
+ READ_LATENCY_B => 0, -- DECIMAL
  READ_RESET_VALUE_A => "0", -- String
  READ_RESET_VALUE_B => "0", -- String
  RST_MODE_A => "SYNC", -- String
@@ -55,8 +60,8 @@ generic map (
 port map (
  douta => douta, -- READ_DATA_WIDTH_A-bit output: Data output for port A read operations.
  doutb => doutb, -- READ_DATA_WIDTH_B-bit output: Data output for port B read operations.
- addra => addra, -- ADDR_WIDTH_A-bit input: Address for port A write and read operations.
- addrb => addrb, -- ADDR_WIDTH_B-bit input: Address for port B write and read operations.
+ addra => addressa, -- ADDR_WIDTH_A-bit input: Address for port A write and read operations.
+ addrb => addressb, -- ADDR_WIDTH_B-bit input: Address for port B write and read operations.
  clka => clka, -- 1-bit input: Clock signal for port A. Also clocks port B when parameter
  -- CLOCKING_MODE is "common_clock".
  clkb => clkb, -- 1-bit input: Clock signal for port B when parameter CLOCKING_MODE is

@@ -1,6 +1,7 @@
 # compile vhdl design source files
 vhdl xil_defaultlib  \
 "../../../../../ALU/ALU.vhd" \
+"../../../../../RAM_macro.vhd" \
 "../../../../project_1.srcs/sources_1/new/branch_controller.vhd" \
 "../../../../../Controller/controller_pipelined.vhd" \
 "../../../../../ProgramCounter/programCounter.vhd" \

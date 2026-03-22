@@ -31,29 +31,28 @@ entity program_counter is
         rst_load:       in std_logic;
         rst_execute:    in std_logic;
         load:           in std_logic;
-        address_in:     in  std_logic_vector(8 downto 0);
-        address_out:    out std_logic_vector(8 downto 0)
+        address_in:     in  std_logic_vector(10 downto 0);
+        address_out:    out std_logic_vector(10 downto 0)
     );
 end program_counter;
 
 architecture Behavioral of program_counter is
     
 begin
-    process(clk, rst_load, rst_execute)
-    variable pc: std_logic_vector( 8 downto 0) := (others => '0');
-    begin
-        if (rst_load = '1') then
-            pc := "000000010";
-        elsif (rst_execute = '1') then
-            pc := "000000000";
-        elsif rising_edge(clk) then
-            if (load = '1') then
-                pc := address_in;
-            else
-                pc := std_logic_vector(unsigned(pc) + 1);
-            end if;
+process(clk)
+    variable pc: std_logic_vector(10 downto 0) := (others => '0');
+begin
+    if rising_edge(clk) then
+        if rst_load = '1' then
+            pc := (others => '0'); -- pc will be 2 on next cycle
+        elsif rst_execute = '1' then
+            pc := std_logic_vector(to_signed(-2,11)); -- pc will be 0 on next cycle
+        elsif load = '1' then
+            pc := address_in;
+        else
+            pc := std_logic_vector(unsigned(pc) + 2);
         end if;
-        address_out <= pc;
-
-    end process;
+    end if;
+    address_out <= pc;
+end process;
 end Behavioral;
