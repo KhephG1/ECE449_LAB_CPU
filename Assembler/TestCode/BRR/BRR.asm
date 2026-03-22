@@ -1,0 +1,15 @@
+ORG	0x0000
+IN r1   ; -3
+IN r2	; 1
+NOP
+NOP
+NOP
+NOP ; Infinite LOOP
+ADD r1, r1, r2
+BRR -2;
+NOP
+NOP
+NOP
+NOP
+NOP
+END

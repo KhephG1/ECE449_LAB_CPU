@@ -13,16 +13,18 @@ entity controller is
     -- Register and Memory Control Signals
     reg_rst :       out std_logic; --when we receive a reset tell the register file to reset the registers
     reg_wr_en:      out std_logic; -- Write back result to Register File
+    reg_wr_en_pc:   out std_logic;
+    reg_rd_link:    out std_logic;
     ra_op:          out std_logic; -- Whether we should get operand 2 from ra field or not (for out test and shift)
     --mem_wr_en:      out std_logic; -- Write back result to Memory
     
     -- Branching outputs
     brr_en:          out std_logic;
     br_en:           out std_logic;
-    br_cond:         out std_logic_vector (2 downto 0);
+    br_cond:         out std_logic_vector (1 downto 0);
     
     -- ALU Control Signals
-    alu_mode:       out std_logic_vector(2 downto 0);
+    alu_mode:       out std_logic_vector(3 downto 0);
     alu_src:        out std_logic_vector(1 downto 0);
     alu_rst:        out std_logic;
 
@@ -70,8 +72,7 @@ begin
     if (rst_execute = '1' or rst_load = '1') then
         reg_wr_en <= '0';
         reg_rst <= '1';
-        pc_load <= '0';
-        alu_mode <= "000";
+        alu_mode <= "0000";
         alu_src <= "00";
         alu_rst <= '1';
         if_id_en <= '1';
@@ -79,72 +80,59 @@ begin
         ex_mem_en <= '1';
         mem_wb_en <= '1';
         reg_wr_en <= '0';
+        reg_wr_en_pc <= '0';
         out_port_en <= '0';
     else
+    --set new control signal defaults here
+        alu_mode <= "0000";
+        alu_src <= "00";
+        br_cond <= "00";
         reg_rst <= '0';
         alu_rst <= '0';
+        brr_en <= '0';
+        br_en <= '0';
+        reg_rd_link <= '0';
+        reg_wr_en_pc <= '0';
+        reg_wr_en <= '0';
+        out_port_en <= '0';
+        ra_op <= '0';
         case opcode is
             when OP_NOP =>
-                alu_mode <= "000";
-                reg_wr_en <= '0';
-                out_port_en <= '0';
             when OP_ADD =>
-                alu_mode <= "001";
-                alu_src <= "00";
-                ra_op <= '0';
+                alu_mode <= "0001";
                 reg_wr_en <= '1';
-                out_port_en <= '0';
             when OP_SUB =>
-                 alu_mode <= "010";
-                 alu_src <= "00";
-                 ra_op <= '0';
+                 alu_mode <= "0010";
                  reg_wr_en <= '1';
-                 out_port_en <= '0';
              when OP_MUL =>
-                 alu_mode  <= "011";
-                 alu_src <= "00";
-                 ra_op <= '0';
+                 alu_mode  <= "0011";
                  reg_wr_en <= '1';
-                 out_port_en <= '0';
              when OP_NAND =>
-                 alu_mode <= "100";
-                 alu_src <= "00";
-                 ra_op <= '0';
+                 alu_mode <= "0100";
                  reg_wr_en <= '1';
-                 out_port_en <= '0';
              when OP_SHL =>
-                 alu_mode <= "101";
+                 alu_mode <= "0101";
                  alu_src <= "01";
                  ra_op <= '1';
                  reg_wr_en <= '1';
-                 out_port_en <= '0';
              when OP_SHR =>
-                 alu_mode <= "110";
+                 alu_mode <= "0110";
                  alu_src <= "01";
                  ra_op <= '1';
                  reg_wr_en <= '1';
-                 out_port_en <= '0';
              when OP_TEST=>
-                 alu_mode <= "111";
+                 alu_mode <= "0111";
                  ra_op <= '1';
-                 out_port_en <= '0';
-                 alu_src <= "00";
-                -- out_port_en <= '0';
              when OP_OUT=>    
-                 alu_mode <= "111";
+                 alu_mode <= "1000";
                  ra_op <= '1';
                  out_port_en <= '1';
-                 reg_wr_en <= '0';
             when OP_IN=>
-                alu_mode <= "000";
+                alu_mode <= "0000";
                 alu_src <= "10";
-                out_port_en <= '0';
                 reg_wr_en <= '1';
             when OP_BRR =>
-                br_cond <= "00";
                 brr_en <= '1';
-                ra_op <= '1';
-                pc_load <= '1';
             when OP_BRR_N =>
                 br_cond <= "01";
                 brr_en <= '1';
@@ -152,18 +140,23 @@ begin
                 br_cond <= "10";
                 brr_en <= '1';
             when OP_BR =>
-                br_cond <= "00";
                 br_en <= '1';
+                ra_op <= '1';
             when OP_BR_N =>
                 br_cond <= "01";
                 br_en <= '1';
+                ra_op <= '1';
             when OP_BR_Z =>
                 br_cond <= "10";
                 br_en <= '1';
+                ra_op <= '1';
             when OP_BSUB =>
-            -- load pc+2 to R7
-            -- load op1 (ra) to pc
+                reg_wr_en_pc <= '1';
+                br_en <= '1';
+                ra_op <= '1';
             when OP_RTRN =>
+                reg_rd_link <= '1';
+                br_en <= '1';
             when others =>
                 null;
         end case;

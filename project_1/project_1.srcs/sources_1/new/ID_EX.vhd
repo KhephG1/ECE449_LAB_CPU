@@ -28,8 +28,8 @@ entity instruction_decode_register is
   Port ( 
      clk:        in std_logic;
      enable:     in std_logic;
-     data_in:    in std_logic_vector(61 downto 0);
-     data_out:   out std_logic_vector(61 downto 0)
+     data_in:    in std_logic_vector(91 downto 0);
+     data_out:   out std_logic_vector(91 downto 0)
     );
 end instruction_decode_register;
 

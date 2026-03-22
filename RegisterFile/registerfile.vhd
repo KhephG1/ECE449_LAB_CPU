@@ -34,7 +34,9 @@ port(
     --write signals
     wr_index: in std_logic_vector(2 downto 0); 
     wr_data: in std_logic_vector(15 downto 0); 
-    wr_enable: in std_logic
+    wr_enable: in std_logic;
+    wr_en_pc : in std_logic;
+    reg_rd_link : in std_logic
     );
 end register_file;
 
@@ -46,7 +48,7 @@ signal reg_file : reg_array; begin
 --write operation 
 process(clk)
 begin
-   if(clk='0' and clk'event) then 
+   if(clk='0' and clk'event) then -- TODO: figure out if we need this for other combinational components
       if(rst='1') then
          for i in 0 to 7 loop
             reg_file(i)<= (others => '0'); 
@@ -62,6 +64,8 @@ begin
          when "110" => reg_file(6) <= wr_data;
          when "111" => reg_file(7) <= wr_data;
          when others => NULL; end case;
+      elsif(wr_en_pc = '1') then 
+        reg_file(7) <= wr_data;
       end if; 
     end if;
 end process;
@@ -77,6 +81,7 @@ reg_file(5) when(rd_index1="101") else
 reg_file(6) when(rd_index1="110") else reg_file(7);
 
 rd_data2 <=
+reg_file(7) when(reg_rd_link = '1') else
 reg_file(0) when(rd_index2="000") else
 reg_file(1) when(rd_index2="001") else
 reg_file(2) when(rd_index2="010") else

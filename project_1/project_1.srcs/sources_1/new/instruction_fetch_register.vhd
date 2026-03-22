@@ -35,8 +35,8 @@ entity instruction_fetch_register is
   Port (
     clk:        in std_logic;
     enable:     in std_logic;
-    data_in:    in std_logic_vector( 15 downto 0);
-    data_out: out std_logic_vector(15 downto 0)
+    data_in:    in std_logic_vector( 24 downto 0);
+    data_out: out std_logic_vector(24 downto 0)
   
    );
 end instruction_fetch_register;

@@ -1,0 +1,25 @@
+ORG	0x0000
+IN r1   ; -3
+IN r2	; 1
+IN r3	; 6
+NOP
+NOP
+NOP
+NOP ; LOOP
+ADD r1, r1, r2
+NOP
+NOP
+NOP
+NOP
+TEST r1
+NOP
+NOP
+NOP
+NOP
+BR.N r3, 1 ; branch to LOOP
+NOP
+NOP
+NOP
+NOP
+OUT r1 ; should be 0
+END
