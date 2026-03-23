@@ -54,22 +54,22 @@ process(br_en, brr_en, pc, br_cond, flag_n, flag_z,disp_l,disp_s,absolute_addr) 
             -- unconditional branch
             if br_en = '1' then
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed((absolute_addr(8 downto 0))) + signed(disp_s)); -- change PC_ALIAS must be pushed through pipeline
+                pc_branch_address <= std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS must be pushed through pipeline
                 bubble <= '1';
             elsif brr_en = '1' then
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed((disp_l)) + signed(pc)); -- change PC_ALIAS must be pushed through pipeline
+                pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS must be pushed through pipeline
                 bubble <= '1';
             end if;
         when "01" =>
             --conditional branch on n flag
             if flag_n = '1' and br_en = '1' then
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed(absolute_addr(8 downto 0)) + signed(disp_s)); -- change PC_ALIAS
+                pc_branch_address <= std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS
                 bubble <= '1';
             elsif flag_n = '1' and brr_en = '1' then 
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed(disp_l) + signed(pc)); -- change PC_ALIAS
+                pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS
                 bubble <= '1';
             end if;
             
@@ -77,11 +77,11 @@ process(br_en, brr_en, pc, br_cond, flag_n, flag_z,disp_l,disp_s,absolute_addr) 
            --conditional branch on zero flag 
            if flag_z = '1' and br_en = '1' then
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed(absolute_addr (8 downto 0)) + signed(disp_s)); -- change PC_ALIAS
+                pc_branch_address <=std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS
                 bubble <= '1';
             elsif flag_z = '1' and brr_en = '1' then 
                 pc_load <= '1';
-                pc_branch_address <= std_logic_vector(signed(disp_l) + signed(pc)); -- change PC_ALIAS
+                pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS
                 bubble <= '1';
             end if;      
         when others =>

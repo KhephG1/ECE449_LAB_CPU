@@ -22,17 +22,38 @@ entity RAM is
         rsta   : in  std_logic;
         rstb   : in  std_logic;
         regcea : in  std_logic;
-        regceb : in  std_logic
+        regceb : in  std_logic;
+        bubble : in std_logic
     );
 end entity RAM;
 
 architecture rtl of RAM is
 signal addressa : std_logic_vector(9 downto 0);
 signal addressb : std_logic_vector(9 downto 0);
+signal ram_out_a : std_logic_vector(15 downto 0);
+signal rst : std_logic;
 begin
+process(clka)
+    variable counter: std_logic_vector(1 downto 0) := (others => '0');
+begin
+if(rising_edge(clka)) then
+    if(bubble = '1') then
+        counter := (others => '0');
+    end if;
+    if(counter < "01") then
+     counter := std_logic_vector(unsigned(counter) + 1);
+    end if;
+    if(counter = "01") then
+      rst <= '1';
+      counter := "10";
+    else
+      rst <= '0';
+    end if;
+end if;
+end process;  
 addressa <= addra(10 downto 1);
 addressb <= addrb(10 downto 1);
-
+douta <= ram_out_a when rst = '0' else (others => '0');
 xpm_memory_dpdistram_inst : xpm_memory_dpdistram
 generic map (
  ADDR_WIDTH_A => 10, -- DECIMAL. The word size of our processor is 16 bits
@@ -46,8 +67,8 @@ generic map (
  MESSAGE_CONTROL => 0, -- DECIMAL
  READ_DATA_WIDTH_A => 16, -- DECIMAL
  READ_DATA_WIDTH_B => 16, -- DECIMAL
- READ_LATENCY_A => 0, -- DECIMAL
- READ_LATENCY_B => 0, -- DECIMAL
+ READ_LATENCY_A => 1, -- DECIMAL
+ READ_LATENCY_B => 1, -- DECIMAL
  READ_RESET_VALUE_A => "0", -- String
  READ_RESET_VALUE_B => "0", -- String
  RST_MODE_A => "SYNC", -- String
@@ -58,7 +79,7 @@ generic map (
  WRITE_DATA_WIDTH_A => 16 -- DECIMAL
 )
 port map (
- douta => douta, -- READ_DATA_WIDTH_A-bit output: Data output for port A read operations.
+ douta => ram_out_a, -- READ_DATA_WIDTH_A-bit output: Data output for port A read operations.
  doutb => doutb, -- READ_DATA_WIDTH_B-bit output: Data output for port B read operations.
  addra => addressa, -- ADDR_WIDTH_A-bit input: Address for port A write and read operations.
  addrb => addressb, -- ADDR_WIDTH_B-bit input: Address for port B write and read operations.

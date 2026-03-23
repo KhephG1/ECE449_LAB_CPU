@@ -12,18 +12,26 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="48.288 ns"></ZoomEndTime>
-      <Cursor1Time time="1.327 ns"></Cursor1Time>
+      <ZoomStartTime time="23.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="30.821 ns"></ZoomEndTime>
+      <Cursor1Time time="24.350 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="136"></NameColumnWidth>
-      <ValueColumnWidth column_width="281"></ValueColumnWidth>
+      <NameColumnWidth column_width="185"></NameColumnWidth>
+      <ValueColumnWidth column_width="166"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="53" />
+   <WVObjectSize size="64" />
    <wvobject fp_name="/cpu_top_level_testbench/uut/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/controller/rst_load" type="logic">
+      <obj_property name="ElementShortName">rst_load</obj_property>
+      <obj_property name="ObjectShortName">rst_load</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/controller/rst_execute" type="logic">
+      <obj_property name="ElementShortName">rst_execute</obj_property>
+      <obj_property name="ObjectShortName">rst_execute</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider346">
       <obj_property name="label">I/O</obj_property>
@@ -75,6 +83,10 @@
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/IF_ID_inst/rst" type="logic">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/IF_ID_inst/data_in" type="array">
+      <obj_property name="ElementShortName">data_in[42:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[42:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/IF_ID_inst/data_out" type="array">
       <obj_property name="ElementShortName">data_out[42:0]</obj_property>
@@ -243,5 +255,37 @@
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/PC_inst/address_out" type="array">
       <obj_property name="ElementShortName">address_out[10:0]</obj_property>
       <obj_property name="ObjectShortName">address_out[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/PC_inst/en" type="logic">
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider58">
+      <obj_property name="label">hazard detect</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/bubble" type="logic">
+      <obj_property name="ElementShortName">bubble</obj_property>
+      <obj_property name="ObjectShortName">bubble</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/if_id_rb_out" type="array">
+      <obj_property name="ElementShortName">if_id_rb_out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">if_id_rb_out[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/if_id_rc_out" type="array">
+      <obj_property name="ElementShortName">if_id_rc_out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">if_id_rc_out[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/id_ex_ra_out" type="array">
+      <obj_property name="ElementShortName">id_ex_ra_out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">id_ex_ra_out[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/ex_mem_ra_out" type="array">
+      <obj_property name="ElementShortName">ex_mem_ra_out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ex_mem_ra_out[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/HZRD_DETECT/mem_wb_ra_out" type="array">
+      <obj_property name="ElementShortName">mem_wb_ra_out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_wb_ra_out[2:0]</obj_property>
    </wvobject>
 </wave_config>

@@ -44,8 +44,15 @@ constant if_id_reg_width : integer := 43;
 constant id_ex_reg_width : integer := 94;
 constant ex_mem_reg_width : integer := 23;
 constant mem_wb_reg_width : integer := 21;
-signal bubble : std_logic;
 
+signal bubble : std_logic;
+signal bubble_data_hzrd : std_logic;
+signal id_ex_bubble : std_logic;
+signal pc_en : std_logic := '1';
+signal if_id_en : std_logic := '1';
+signal id_ex_en : std_logic := '1';
+signal ex_mem_en : std_logic := '1';
+signal mem_wb_en : std_logic := '1';
 --ROM
 signal rom_en : std_logic := '1'; --hard code to 1 until we have a reason not to
 signal ROM_douta : std_logic_vector(15 downto 0);
@@ -58,13 +65,13 @@ signal ram_wea : std_logic_vector(1 downto 0) := "00";
 signal ram_addr_b : std_logic_vector(10 downto 0) := (others => '0');
 signal ram_dina : std_logic_vector(15 downto 0) := (others => '0');
 signal ram_doutb : std_logic_vector(15 downto 0);
+signal ram_douta : std_logic_vector(15 downto 0);
 signal ram_rsta  : std_logic := '0';
 signal ram_rstb : std_logic := '0';
 signal ram_regcea : std_logic := '1';
 signal ram_regceb : std_logic := '1';
 
 --IF_ID
-signal if_id_rst : std_logic;
 signal if_id_data_out : std_logic_vector(if_id_reg_width - 1 downto 0);
 alias if_id_in_port_out is if_id_data_out(if_id_reg_width - 1 downto 27);
 alias if_id_pc_out is if_id_data_out(26 downto 16); -- passing pc through
@@ -130,10 +137,11 @@ signal alu_result: std_logic_vector(15 downto 0);
 signal pc_load : std_logic;
 
 begin
-
+pc_en <= '1' when bubble_data_hzrd = '0' else '0';
 PC_inst : entity work.program_counter
     port map(
         clk => clk,
+        en => pc_en,
         rst_load    => rst_load,
         rst_execute => rst_execute,
         load        => pc_load,
@@ -149,7 +157,6 @@ ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
     douta => ROM_douta --ROM output tied to instruction fetch register
 );
 
-ram_regcea <= '1' when (rst_load /= '0' or rst_execute /= '0') else '0';
 RAM_inst : entity work.RAM
 PORT MAP(
         clka => clk,
@@ -165,23 +172,35 @@ PORT MAP(
         rsta  => ram_rsta,
         rstb  => ram_rstb,
         regcea => ram_regcea,
-        regceb => ram_regceb
+        regceb => ram_regceb,
+        bubble => bubble
 );
-
-if_id_rst <= '1' when (bubble = '1' or rst_load  = '1' or rst_execute = '1') else '0';
+if_id_en <= '1' when bubble_data_hzrd = '0' else '0';
 IF_ID_inst: entity work.pipeline_reg
   generic map(
     width => if_id_reg_width
   )
   port map (
     clk        => clk,
-    rst => if_id_rst,
+    rst => bubble,
+    en =>if_id_en,
     data_in => 
     in_port &
     pc_out & 
     memory_instruction,
     data_out => if_id_data_out
 );
+
+HZRD_DETECT: entity work.hzrd_detect
+    port map(
+        if_id_rb_out=>if_id_rb_out,
+        if_id_rc_out=>if_id_rc_out,
+        id_ex_ra_out=>id_ex_ra_out,
+        ex_mem_ra_out=>ex_mem_ra_out,
+        mem_wb_ra_out=>mem_wb_ra_out,
+        bubble => bubble_data_hzrd
+    );
+
 
 opcode <= if_id_opcode_out;
 --read index two source mux
@@ -204,13 +223,15 @@ RF_inst : entity work.register_file
         reg_rd_link => reg_rd_link   
 );
 
+id_ex_bubble <= '1' when (bubble = '1' or bubble_data_hzrd = '1') else '0';
 ID_EX_inst: entity work.pipeline_reg
   generic map (
     width => id_ex_reg_width
   )
   port map (
      clk => clk,
-     rst => bubble,
+     en => id_ex_en,
+     rst => id_ex_bubble,
      data_in => pc_load &
                 if_id_displ_out &
                 if_id_disps_out & 
@@ -270,6 +291,7 @@ EX_MEM_inst: entity work.pipeline_reg
   port map (
      clk => clk,
      rst => '0',
+     en => ex_mem_en,
      data_in => id_ex_out_port_en_out &
                 id_ex_ra_out &
                 id_ex_wb_en_out &
@@ -287,6 +309,7 @@ MEM_WB_inst: entity work.pipeline_reg
   port map (
      clk => clk,
      rst => '0',
+     en => mem_wb_en,
      data_in => ex_mem_out_port_en_out &
                 ex_mem_ra_out &
                 ex_mem_wb_en_out &

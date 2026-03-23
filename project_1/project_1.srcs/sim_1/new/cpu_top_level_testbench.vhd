@@ -30,6 +30,7 @@ begin
 end process;
 
 process begin
+    wait for 10 ns;
     test_rst_load <= '0';
     test_rst_execute <= '1';
     wait for 2 ns;
@@ -39,7 +40,8 @@ process begin
 end process;
 
 process begin
-    test_in_port <= std_logic_vector(to_unsigned(7,16));
+    wait for 10 ns;
+    test_in_port <= std_logic_vector(to_unsigned(14,16));
     wait for 6 ns;
     test_in_port <= std_logic_vector(to_unsigned(1,16));
     wait for 2 ns;
