@@ -3,32 +3,39 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
-entity hzrd_detect is
+entity forwarding_unit is
 port(
-  if_id_rb_out : in std_logic_vector(2 downto 0);
-  if_id_rc_out : in std_logic_vector(2 downto 0);
-  id_ex_ra_out : in std_logic_vector(2 downto 0);
+  rst : in std_logic;
+  id_ex_rb_out : in std_logic_vector(2 downto 0);
+  id_ex_rc_out : in std_logic_vector(2 downto 0);
   ex_mem_ra_out : in std_logic_vector(2 downto 0);
   mem_wb_ra_out : in std_logic_vector(2 downto 0);
-  bubble : out std_logic
+  ex_mem_reg_write : in std_logic; -- bind to ex_mem_wr_enable
+  mem_wb_reg_write : in std_logic ;-- bind to mem_wb wr enable
+  forward_b : out std_logic_vector(1 downto 0);
+  forward_c : out std_logic_vector(1 downto 0)
 );
 end entity;
 
-architecture behavioral of hzrd_detect is
-constant ZERO_3 : std_logic_vector(2 downto 0) := (others => '0');
+architecture behavioral of forwarding_unit is
 begin
-process(if_id_rb_out,if_id_rc_out,id_ex_ra_out,ex_mem_ra_out,mem_wb_ra_out) 
+process(all) 
 begin
-    if(if_id_rc_out  /= ZERO_3 and if_id_rb_out /= ZERO_3) then
-        if((if_id_rb_out = id_ex_ra_out or if_id_rb_out = ex_mem_ra_out or if_id_rb_out = mem_wb_ra_out)) then
-            bubble <= '1';
-        elsif(if_id_rc_out = id_ex_ra_out or if_id_rc_out = ex_mem_ra_out or if_id_rc_out = mem_wb_ra_out) then
-            bubble <= '1';
-        else
-            bubble <= '0';
-        end if;
-    else
-        bubble <= '0';
-    end if;
+    forward_b <= "00";
+    forward_c <= "00";
+    if rst = '0' then
+            if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rb_out) then
+                forward_b <= "10";
+            elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rb_out
+                   and ex_mem_ra_out /= id_ex_rb_out) then
+                forward_b <= "01"; 
+            end if;
+            if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rc_out) then
+                forward_c <= "10";
+            elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rc_out
+                   and ex_mem_ra_out /= id_ex_rc_out) then
+                forward_c <= "01"; 
+            end if;
+    end if;      
 end process;
 end architecture;

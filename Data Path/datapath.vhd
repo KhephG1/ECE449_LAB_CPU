@@ -41,18 +41,14 @@ end datapath;
 architecture behavioural of datapath is
 --pipeline register widths
 constant if_id_reg_width : integer := 43;
-constant id_ex_reg_width : integer := 94;
+constant id_ex_reg_width : integer := 100;
 constant ex_mem_reg_width : integer := 23;
 constant mem_wb_reg_width : integer := 21;
 
 signal bubble : std_logic;
-signal bubble_data_hzrd : std_logic;
-signal id_ex_bubble : std_logic;
-signal pc_en : std_logic := '1';
-signal if_id_en : std_logic := '1';
-signal id_ex_en : std_logic := '1';
-signal ex_mem_en : std_logic := '1';
-signal mem_wb_en : std_logic := '1';
+signal forward_b : std_logic_vector(1 downto 0);
+signal forward_c : std_logic_vector(1 downto 0);
+
 --ROM
 signal rom_en : std_logic := '1'; --hard code to 1 until we have a reason not to
 signal ROM_douta : std_logic_vector(15 downto 0);
@@ -72,6 +68,8 @@ signal ram_regcea : std_logic := '1';
 signal ram_regceb : std_logic := '1';
 
 --IF_ID
+signal if_id_rst : std_logic;
+signal if_id_instr_in : std_logic_vector(15 downto 0);
 signal if_id_data_out : std_logic_vector(if_id_reg_width - 1 downto 0);
 alias if_id_in_port_out is if_id_data_out(if_id_reg_width - 1 downto 27);
 alias if_id_pc_out is if_id_data_out(26 downto 16); -- passing pc through
@@ -85,6 +83,7 @@ alias if_id_disps_out is if_id_data_out(5 downto 0);
 
 
 --ID_EX
+signal id_ex_rst : std_logic;
 signal id_ex_data_out : std_logic_vector(id_ex_reg_width - 1 downto 0);
 alias id_ex_d1_out is id_ex_data_out(15 downto 0);
 alias id_ex_d2_out is id_ex_data_out(31 downto 16);
@@ -101,9 +100,12 @@ alias id_ex_out_br_cond_out is id_ex_data_out(66 downto 65); -- branch condition
 alias id_ex_pc_out is id_ex_data_out(77 downto 67); -- pass along pc count
 alias id_ex_disps_out is id_ex_data_out(83 downto 78);
 alias id_ex_displ_out is id_ex_data_out(92 downto 84);
+alias id_ex_rb_out is id_ex_data_out(95 downto 93);
+alias id_ex_rc_out is id_ex_data_out(98 downto 96);
 alias id_ex_pc_load_out is id_ex_data_out(id_ex_reg_width - 1);
 
 --EX_MEM
+signal ex_mem_rst : std_logic;
 signal ex_mem_data_out: std_logic_vector(ex_mem_reg_width - 1 downto 0);
 alias ex_mem_alu_result_out is ex_mem_data_out(15 downto 0);
 alias ex_mem_flag_z_out is ex_mem_data_out(16);
@@ -113,6 +115,7 @@ alias ex_mem_ra_out is ex_mem_data_out(21 downto 19);
 alias ex_mem_out_port_en_out is ex_mem_data_out(ex_mem_reg_width - 1);
 
 --MEM_WB
+signal mem_wb_rst : std_logic;
 signal mem_wb_data_out: std_logic_vector(mem_wb_reg_width - 1 downto 0);
 alias mem_wb_alu_result_out is mem_wb_data_out(15 downto 0);
 alias mem_wb_wb_en_out is mem_wb_data_out(16);
@@ -136,12 +139,14 @@ signal alu_result: std_logic_vector(15 downto 0);
 --PC Signals
 signal pc_load : std_logic;
 
+
+signal fwd_rst : std_logic;
+signal branch_ctrl_rst : std_logic;
+
 begin
-pc_en <= '1' when bubble_data_hzrd = '0' else '0';
 PC_inst : entity work.program_counter
     port map(
         clk => clk,
-        en => pc_en,
         rst_load    => rst_load,
         rst_execute => rst_execute,
         load        => pc_load,
@@ -156,7 +161,6 @@ ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
     addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
     douta => ROM_douta --ROM output tied to instruction fetch register
 );
-
 RAM_inst : entity work.RAM
 PORT MAP(
         clka => clk,
@@ -175,32 +179,21 @@ PORT MAP(
         regceb => ram_regceb,
         bubble => bubble
 );
-if_id_en <= '1' when bubble_data_hzrd = '0' else '0';
+if_id_instr_in <= memory_instruction when (rst_load = '0' and rst_execute = '0') else std_logic_vector(to_unsigned(0,16));
+if_id_rst <= '1' when( bubble = '1' or rst_load = '1' or rst_execute = '1') else '0';
 IF_ID_inst: entity work.pipeline_reg
   generic map(
     width => if_id_reg_width
   )
   port map (
-    clk        => clk,
-    rst => bubble,
-    en =>if_id_en,
+    clk => clk,
+    rst => if_id_rst,
     data_in => 
     in_port &
     pc_out & 
-    memory_instruction,
+    if_id_instr_in,
     data_out => if_id_data_out
 );
-
-HZRD_DETECT: entity work.hzrd_detect
-    port map(
-        if_id_rb_out=>if_id_rb_out,
-        if_id_rc_out=>if_id_rc_out,
-        id_ex_ra_out=>id_ex_ra_out,
-        ex_mem_ra_out=>ex_mem_ra_out,
-        mem_wb_ra_out=>mem_wb_ra_out,
-        bubble => bubble_data_hzrd
-    );
-
 
 opcode <= if_id_opcode_out;
 --read index two source mux
@@ -222,17 +215,17 @@ RF_inst : entity work.register_file
         wr_en_pc => reg_wr_en_pc,
         reg_rd_link => reg_rd_link   
 );
-
-id_ex_bubble <= '1' when (bubble = '1' or bubble_data_hzrd = '1') else '0';
+id_ex_rst <= '1' when (bubble = '1' or rst_load = '1' or rst_execute = '1') else '0';
 ID_EX_inst: entity work.pipeline_reg
   generic map (
     width => id_ex_reg_width
   )
   port map (
      clk => clk,
-     en => id_ex_en,
-     rst => id_ex_bubble,
+     rst => id_ex_rst,
      data_in => pc_load &
+                if_id_rb_out &
+                if_id_rc_out &
                 if_id_displ_out &
                 if_id_disps_out & 
                 if_id_pc_out &
@@ -250,16 +243,55 @@ ID_EX_inst: entity work.pipeline_reg
                 rd_data1,
                 
     data_out => id_ex_data_out
-); 
--- ALU src MUX
-op1 <= id_ex_d1_out when id_ex_alu_src_out  = "00" else
-       (x"000" & id_ex_cl_out) when id_ex_alu_src_out  = "01" else
-       id_ex_in_port_out;
+);
+fwd_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';
+FWD_UNIT: entity work.forwarding_unit
+    port map(
+      rst => fwd_rst,
+      id_ex_rb_out=>id_ex_rb_out,
+      id_ex_rc_out=>id_ex_rc_out,
+      ex_mem_ra_out=>ex_mem_ra_out,
+      mem_wb_ra_out=>mem_wb_ra_out,
+      ex_mem_reg_write=>ex_mem_wb_en_out,
+      mem_wb_reg_write=>mem_wb_wb_en_out,
+      forward_b=>forward_b,
+      forward_c=>forward_c
+);
+ 
+-- ALU op1 src MUX
+process(all)
+begin
+    if(forward_b = "10") then
+        op1 <= ex_mem_alu_result_out;
+    elsif(forward_b = "01") then
+        op1 <= mem_wb_alu_result_out;
+    else
+        if(id_ex_alu_src_out = "00") then
+            op1 <= id_ex_d1_out;
+        elsif(id_ex_alu_src_out = "01") then
+            op1 <= (x"000" & id_ex_cl_out);
+        else
+            op1 <= id_ex_in_port_out;
+        end if;
+   end if;
+end process;
 
+-- ALU op2 src MUX 
+process(all)
+begin
+    if(forward_c = "10") then     
+        op2 <= ex_mem_alu_result_out;
+    elsif(forward_c = "01") then
+        op2 <= mem_wb_alu_result_out;
+    else
+        op2 <= id_ex_d2_out;
+    end if;
+end process;
+        
 ALU_inst : entity work.ALU
     port map(
         op1        => op1,
-        op2        => id_ex_d2_out,
+        op2        => op2,
         alu_mode   => id_ex_alu_mode_out,
         alu_rst    => alu_rst, 
         alu_result => alu_result,
@@ -267,9 +299,10 @@ ALU_inst : entity work.ALU
         flag_n     => alu_flag_n
 );
   
-  
+branch_ctrl_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
 BRANCH_CTRL: entity work.branch_controller
 port map(
+    rst => branch_ctrl_rst,
     br_en => id_ex_out_br_en_out,
     brr_en => id_ex_out_brr_en_out,
     br_cond => id_ex_out_br_cond_out,
@@ -283,15 +316,14 @@ port map(
     pc_branch_address => pc_branch_address,
     bubble => bubble
 ); 
-   
+ex_mem_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';   
 EX_MEM_inst: entity work.pipeline_reg
   generic map(
     width => ex_mem_reg_width
   )
   port map (
      clk => clk,
-     rst => '0',
-     en => ex_mem_en,
+     rst => ex_mem_rst,
      data_in => id_ex_out_port_en_out &
                 id_ex_ra_out &
                 id_ex_wb_en_out &
@@ -301,15 +333,14 @@ EX_MEM_inst: entity work.pipeline_reg
     data_out => ex_mem_data_out                
 ); 
 
-
+mem_wb_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';
 MEM_WB_inst: entity work.pipeline_reg
   generic map(
   width => mem_wb_reg_width
   )  
   port map (
      clk => clk,
-     rst => '0',
-     en => mem_wb_en,
+     rst => mem_wb_rst,
      data_in => ex_mem_out_port_en_out &
                 ex_mem_ra_out &
                 ex_mem_wb_en_out &
