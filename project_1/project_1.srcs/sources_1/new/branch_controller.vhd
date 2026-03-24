@@ -46,51 +46,61 @@ end branch_controller;
 
 architecture Behavioral of branch_controller is
 begin
-process(br_en, brr_en, pc, br_cond, flag_n, flag_z,disp_l,disp_s,absolute_addr,rst) begin
+process(all) begin
     pc_load <= '0';
     pc_branch_address <= (others => '0');
     bubble <= '0';
-    if(rst = '0') then
+    if rst = '0' then
         case br_cond is
             when "00" =>
-                -- unconditional branch
                 if br_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <= std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS must be pushed through pipeline
                     bubble <= '1';
+                    pc_branch_address <= std_logic_vector(
+                        resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
+                        shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
                 elsif brr_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS must be pushed through pipeline
                     bubble <= '1';
+                    pc_branch_address <= std_logic_vector(
+                        shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
+                        resize(signed(pc) - 2, pc_branch_address'length));
                 end if;
+
             when "01" =>
-                --conditional branch on n flag
                 if flag_n = '1' and br_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <= std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS
                     bubble <= '1';
-                elsif flag_n = '1' and brr_en = '1' then 
+                    pc_branch_address <= std_logic_vector(
+                        resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
+                        shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
+                elsif flag_n = '1' and brr_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS
                     bubble <= '1';
+                    pc_branch_address <= std_logic_vector(
+                        shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
+                        resize(signed(pc) - 2, pc_branch_address'length));
                 end if;
-                
+
             when "10" =>
-               --conditional branch on zero flag 
-               if flag_z = '1' and br_en = '1' then
+                if flag_z = '1' and br_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <=std_logic_vector(resize(signed(absolute_addr(8 downto 0)),pc_branch_address'length) + resize(signed(disp_s),pc_branch_address'length)); -- change PC_ALIAS
                     bubble <= '1';
-                elsif flag_z = '1' and brr_en = '1' then 
+                    pc_branch_address <= std_logic_vector(
+                        resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
+                        shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
+                elsif flag_z = '1' and brr_en = '1' then
                     pc_load <= '1';
-                    pc_branch_address <= std_logic_vector(resize(signed(disp_l),pc_branch_address'length) + resize(signed(pc),pc_branch_address'length)); -- change PC_ALIAS
                     bubble <= '1';
-                end if;      
+                    pc_branch_address <= std_logic_vector(
+                        shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
+                        resize(signed(pc) - 2, pc_branch_address'length));
+                end if;
+
             when others =>
-              pc_load <= '0';
-              pc_branch_address <= (others => '0');
+                pc_load <= '0';
+                pc_branch_address <= (others => '0');
         end case;
     end if;
 end process;
-
 end Behavioral;

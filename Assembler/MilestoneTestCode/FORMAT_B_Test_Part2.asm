@@ -6,6 +6,7 @@ IN R3;  05  ;  End of initialization
 IN R4;  0 ;  
 IN R5;  01 ; for absolute branching
 IN R6;  05 ; r6 is counter for the loop and indicates the number of times the loop is done.
+IN R7 ; 00 diabolical bruh
 BR.SUB R4,10 ; Go to the subroutine		
 BRR 0     ; Infinite loop (the end of the program)
 ADD R2, R1, R5  ; Start of the subroutine. It runs for 5 times. R2 <-- R1 + 1

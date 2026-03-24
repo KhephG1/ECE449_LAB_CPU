@@ -33,9 +33,7 @@ port(
     --write signals
     wr_index: in std_logic_vector(2 downto 0); 
     wr_data: in std_logic_vector(15 downto 0);
-    pc: in std_logic_vector(15 downto 0); --make a separate port to enable writing PC while writing to another registe 
     wr_enable: in std_logic;
-    wr_en_pc : in std_logic;
     reg_rd_link : in std_logic
     );
 end register_file;
@@ -56,9 +54,6 @@ begin
         else
             if wr_enable = '1' then
                 reg_file(to_integer(unsigned(wr_index))) <= wr_data;
-            end if;
-            if wr_en_pc = '1' then
-                reg_file(7) <= pc;
             end if;
         end if;
     end if;

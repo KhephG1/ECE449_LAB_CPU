@@ -138,11 +138,12 @@ signal alu_result: std_logic_vector(15 downto 0);
 
 --PC Signals
 signal pc_load : std_logic;
-
+signal pc_en : std_logic;
 
 signal fwd_rst : std_logic;
 signal branch_ctrl_rst : std_logic;
-
+signal alu_result_mux : std_logic_vector(15 downto 0);
+signal wb_idx_mux : std_logic_vector(2 downto 0);
 begin
 PC_inst : entity work.program_counter
     port map(
@@ -198,8 +199,6 @@ IF_ID_inst: entity work.pipeline_reg
 opcode <= if_id_opcode_out;
 --read index two source mux
 rd_idx2 <= if_id_rc_out when ra_op = '0' else if_id_ra_out;
---extend pc
-pc_extended <= std_logic_vector(resize(unsigned(if_id_pc_out),16));
 RF_inst : entity work.register_file
     port map(
         clk       => clk,
@@ -210,9 +209,7 @@ RF_inst : entity work.register_file
         rd_data2  => rd_data2,
         wr_index  => mem_wb_ra_out,
         wr_data   => mem_wb_alu_result_out,
-        pc => pc_extended,
         wr_enable => mem_wb_wb_en_out,
-        wr_en_pc => reg_wr_en_pc,
         reg_rd_link => reg_rd_link   
 );
 id_ex_rst <= '1' when (bubble = '1' or rst_load = '1' or rst_execute = '1') else '0';
@@ -225,7 +222,7 @@ ID_EX_inst: entity work.pipeline_reg
      rst => id_ex_rst,
      data_in => pc_load &
                 if_id_rb_out &
-                if_id_rc_out &
+                rd_idx2 &
                 if_id_displ_out &
                 if_id_disps_out & 
                 if_id_pc_out &
@@ -248,6 +245,7 @@ fwd_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';
 FWD_UNIT: entity work.forwarding_unit
     port map(
       rst => fwd_rst,
+      alu_src => id_ex_alu_src_out,
       id_ex_rb_out=>id_ex_rb_out,
       id_ex_rc_out=>id_ex_rc_out,
       ex_mem_ra_out=>ex_mem_ra_out,
@@ -261,9 +259,9 @@ FWD_UNIT: entity work.forwarding_unit
 -- ALU op1 src MUX
 process(all)
 begin
-    if(forward_b = "10") then
+    if(forward_c = "10") then
         op1 <= ex_mem_alu_result_out;
-    elsif(forward_b = "01") then
+    elsif(forward_c = "01") then
         op1 <= mem_wb_alu_result_out;
     else
         if(id_ex_alu_src_out = "00") then
@@ -279,9 +277,9 @@ end process;
 -- ALU op2 src MUX 
 process(all)
 begin
-    if(forward_c = "10") then     
+    if(forward_b = "10") then     
         op2 <= ex_mem_alu_result_out;
-    elsif(forward_c = "01") then
+    elsif(forward_b = "01") then
         op2 <= mem_wb_alu_result_out;
     else
         op2 <= id_ex_d2_out;
@@ -316,7 +314,9 @@ port map(
     pc_branch_address => pc_branch_address,
     bubble => bubble
 ); 
-ex_mem_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';   
+ex_mem_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
+alu_result_mux <=  std_logic_vector(resize(unsigned(id_ex_pc_out),alu_result'length)) when id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1' else alu_result;
+wb_idx_mux <= "111" when  id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1' else id_ex_ra_out;
 EX_MEM_inst: entity work.pipeline_reg
   generic map(
     width => ex_mem_reg_width
@@ -325,11 +325,11 @@ EX_MEM_inst: entity work.pipeline_reg
      clk => clk,
      rst => ex_mem_rst,
      data_in => id_ex_out_port_en_out &
-                id_ex_ra_out &
+                wb_idx_mux &
                 id_ex_wb_en_out &
                 alu_flag_n &
                 alu_flag_z &
-                alu_result,
+                alu_result_mux,
     data_out => ex_mem_data_out                
 ); 
 
@@ -348,10 +348,11 @@ MEM_WB_inst: entity work.pipeline_reg
      data_out => mem_wb_data_out
 ); 
 
---out port gate process
-process(mem_wb_out_port_en_out) begin
-    if(mem_wb_out_port_en_out = '1') then
+process(all) begin
+    if mem_wb_out_port_en_out = '1' then
         out_port <= mem_wb_alu_result_out;
+    else
+        out_port <= (others => '0');
     end if;
 end process;
 

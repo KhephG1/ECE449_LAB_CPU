@@ -12,6 +12,7 @@ port(
   mem_wb_ra_out : in std_logic_vector(2 downto 0);
   ex_mem_reg_write : in std_logic; -- bind to ex_mem_wr_enable
   mem_wb_reg_write : in std_logic ;-- bind to mem_wb wr enable
+  alu_src : in std_logic_vector(1 downto 0);
   forward_b : out std_logic_vector(1 downto 0);
   forward_c : out std_logic_vector(1 downto 0)
 );
@@ -23,7 +24,7 @@ process(all)
 begin
     forward_b <= "00";
     forward_c <= "00";
-    if rst = '0' then
+    if rst = '0' and alu_src = "00" then
             if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rb_out) then
                 forward_b <= "10";
             elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rb_out

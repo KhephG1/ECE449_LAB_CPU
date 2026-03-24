@@ -141,7 +141,7 @@ begin
                 br_en <= '1';
                 ra_op <= '1';
             when OP_BSUB =>
-                reg_wr_en_pc <= '1';
+                reg_wr_en <= '1';
                 br_en <= '1';
                 ra_op <= '1';
             when OP_RTRN =>

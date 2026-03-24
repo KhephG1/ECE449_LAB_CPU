@@ -334,3 +334,6 @@ Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memo
 INFO: [Common 17-1381] The checkpoint 'C:/Users/zguzman.UVIC/project_1/project_1.runs/synth_1/cpu_top_level.dcp' has been generated.
 INFO: [Vivado 12-24828] Executing command : report_utilization -file cpu_top_level_utilization_synth.rpt -pb cpu_top_level_utilization_synth.pb
 INFO: [Common 17-206] Exiting Vivado at Sat Mar  7 13:31:30 2026...
+
+*** Halting run - EA reset detected ***
+
