@@ -1,7 +1,7 @@
 Vivado Simulator v2025.1.0
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: C:/Xilinx/2025.1/Vivado/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L blk_mem_gen_v8_4_11 -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot format_b_testbench_behav xil_defaultlib.format_b_testbench xil_defaultlib.glbl -log elaborate.log 
+Running: C:/Xilinx/2025.1/Vivado/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L blk_mem_gen_v8_4_11 -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot cpu_top_level_testbench_behav xil_defaultlib.cpu_top_level_testbench xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
@@ -27,14 +27,14 @@ Compiling module xpm.xpm_memory_dpdistram(MEMORY_SIZE...
 Compiling architecture rtl of entity xil_defaultlib.RAM [ram_default]
 Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=43)\]
 Compiling architecture behavioural of entity xil_defaultlib.register_file [register_file_default]
-Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=100)\]
+Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=102)\]
 Compiling architecture behavioral of entity xil_defaultlib.forwarding_unit [forwarding_unit_default]
 Compiling architecture behavioral of entity xil_defaultlib.ALU [alu_default]
 Compiling architecture behavioral of entity xil_defaultlib.branch_controller [branch_controller_default]
-Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=23)\]
-Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=21)\]
+Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=41)\]
+Compiling architecture behavioral of entity xil_defaultlib.pipeline_reg [\pipeline_reg(width=38)\]
 Compiling architecture behavioural of entity xil_defaultlib.datapath [datapath_default]
 Compiling architecture behavioral of entity xil_defaultlib.controller [controller_default]
 Compiling architecture behavioral of entity xil_defaultlib.cpu_top_level [cpu_top_level_default]
-Compiling architecture behavioral of entity xil_defaultlib.format_b_testbench
-Built simulation snapshot format_b_testbench_behav
+Compiling architecture behavioral of entity xil_defaultlib.cpu_top_level_testbench
+Built simulation snapshot cpu_top_level_testbench_behav

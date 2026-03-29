@@ -28,6 +28,10 @@ entity controller is
     alu_src:        out std_logic_vector(1 downto 0);
     alu_rst:        out std_logic;
     
+    --Load store outputs
+    mem_wr_en: out std_logic;
+    mem_to_reg: out std_logic;
+    
     --I/O
    out_port_en : out std_logic
 
@@ -40,7 +44,7 @@ architecture behavioral of controller is
 -- Instructions:    
     subtype opcode_t is std_logic_vector (6 downto 0);
     -- Format A Instructions: 
-    constant OP_NOP : opcode_t  := "0000000";
+    constant OP_NOP : opcode_t  := "0000000"; -- TODO assign the constants as done in the format L instructions
     constant OP_ADD  : opcode_t := "0000001";
     constant OP_SUB  : opcode_t := "0000010";
     constant OP_MUL  : opcode_t := "0000011";
@@ -59,6 +63,12 @@ architecture behavioral of controller is
     constant OP_BR_Z : opcode_t := "1000101"; 
     constant OP_BSUB  : opcode_t  := "1000110";
     constant OP_RTRN : opcode_t := "1000111"; 
+    -- Format L Instructions 
+    constant OP_LOAD : opcode_t := std_logic_vector(to_unsigned(16,7));
+    constant OP_STORE: opcode_t := std_logic_vector(to_unsigned(17,7));
+    constant OP_LOADIMM : opcode_t := std_logic_vector(to_unsigned(18,7));
+    constant OP_MOV : opcode_t := std_logic_vector(to_unsigned(19,7));
+    
 begin
 
 process(opcode,rst_load,rst_execute)
@@ -86,6 +96,8 @@ begin
         reg_wr_en <= '0';
         out_port_en <= '0';
         ra_op <= '0';
+        mem_to_reg <= '0';
+        mem_wr_en <= '0';
         case opcode is
             when OP_NOP =>
             when OP_ADD =>
@@ -147,6 +159,14 @@ begin
             when OP_RTRN =>
                 reg_rd_link <= '1';
                 br_en <= '1';
+            when OP_LOAD =>
+                mem_to_reg <= '1';
+                reg_wr_en <= '1';
+            when OP_STORE => 
+                mem_wr_en <= '1';
+                ra_op <= '1';
+            when OP_LOADIMM =>
+            when OP_MOV =>
             when others =>
                 null;
         end case;

@@ -60,7 +60,7 @@ generic map (
  ADDR_WIDTH_B => 10, -- DECIMAL
  BYTE_WRITE_WIDTH_A => 8, -- DECIMAL
  CLOCKING_MODE => "common_clock", -- String
- MEMORY_INIT_FILE => "FORMAT_B_Test_Part2.mem", -- String
+ MEMORY_INIT_FILE => "FORMAT_L_Test_Part1.mem", -- String
  MEMORY_INIT_PARAM => "0", -- String
  MEMORY_OPTIMIZATION => "false", -- String
  MEMORY_SIZE => 8192, -- DECIMAL
