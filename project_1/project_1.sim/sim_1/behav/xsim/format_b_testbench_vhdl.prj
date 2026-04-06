@@ -2,7 +2,6 @@
 vhdl xil_defaultlib  \
 "../../../../../ALU/ALU.vhd" \
 "../../../../../RAM_macro.vhd" \
-"../../../../../Controller/controller_pipelined.vhd" \
 "../../../../../ProgramCounter/programCounter.vhd" \
 "../../../../project_1.srcs/sources_1/new/pipeline_reg_generic.vhd" \
 
@@ -11,6 +10,7 @@ vhdl2008 xil_defaultlib  \
 "../../../../../hazard_detection/hzrd_detect.vhd" \
 "../../../../project_1.srcs/sources_1/new/branch_controller.vhd" \
 "../../../../../Data Path/datapath.vhd" \
+"../../../../../Controller/controller_pipelined.vhd" \
 
 vhdl xil_defaultlib  \
 "../../../../project_1.srcs/sources_1/new/cpu_top_level.vhd" \

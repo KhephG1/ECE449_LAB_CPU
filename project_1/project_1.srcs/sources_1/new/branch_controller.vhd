@@ -38,7 +38,7 @@ Port (
     pc: in std_logic_vector(10 downto 0);
     -- program counter load input
     pc_load : out std_logic;
-    bubble : out std_logic;
+    flush : out std_logic;
     -- program counter branch input
     pc_branch_address : out std_logic_vector(10 downto 0)
 );
@@ -49,19 +49,19 @@ begin
 process(all) begin
     pc_load <= '0';
     pc_branch_address <= (others => '0');
-    bubble <= '0';
+    flush <= '0';
     if rst = '0' then
         case br_cond is
             when "00" =>
                 if br_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
                         shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
                 elsif brr_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
                         resize(signed(pc) - 2, pc_branch_address'length));
@@ -70,13 +70,13 @@ process(all) begin
             when "01" =>
                 if flag_n = '1' and br_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
                         shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
                 elsif flag_n = '1' and brr_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
                         resize(signed(pc) - 2, pc_branch_address'length));
@@ -85,13 +85,13 @@ process(all) begin
             when "10" =>
                 if flag_z = '1' and br_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         resize(signed(absolute_addr(8 downto 0)), pc_branch_address'length) +
                         shift_left(resize(signed(disp_s), pc_branch_address'length), 1));
                 elsif flag_z = '1' and brr_en = '1' then
                     pc_load <= '1';
-                    bubble <= '1';
+                    flush <= '1';
                     pc_branch_address <= std_logic_vector(
                         shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
                         resize(signed(pc) - 2, pc_branch_address'length));

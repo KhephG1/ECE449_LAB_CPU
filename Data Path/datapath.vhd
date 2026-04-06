@@ -16,7 +16,6 @@ entity datapath is
         alu_src      : in std_logic_vector(1 downto 0);
         reg_rst      : in std_logic;
         reg_wr_en    : in std_logic;                     -- register file write enable
-        reg_wr_en_pc : in std_logic;
         reg_rd_link  : in std_logic;
         --mem_wr_en : in std_logic; -- write ALU result to memory instead of to register (for store)
         
@@ -36,7 +35,9 @@ entity datapath is
         
         --Load Store Logic
         mem_to_reg : in std_logic;
-        mem_wr_en: in std_logic
+        mem_wr_en: in std_logic;
+        loadimm_m1 : out std_logic;
+        loadimm : in std_logic
         
         
     );
@@ -45,11 +46,11 @@ end datapath;
 architecture behavioural of datapath is
 --pipeline register widths
 constant if_id_reg_width : integer := 43;
-constant id_ex_reg_width : integer := 102;
-constant ex_mem_reg_width : integer := 41;
-constant mem_wb_reg_width : integer := 38;
+constant id_ex_reg_width : integer := 110;
+constant ex_mem_reg_width : integer := 37;
+constant mem_wb_reg_width : integer := 39;
 
-signal bubble : std_logic;
+signal flush : std_logic;
 signal forward_b : std_logic_vector(1 downto 0);
 signal forward_c : std_logic_vector(1 downto 0);
 
@@ -73,7 +74,6 @@ signal ram_regceb : std_logic := '1';
 signal memory_data : std_logic_vector(15 downto 0);
 --IF_ID
 signal if_id_rst : std_logic;
-signal if_id_instr_in : std_logic_vector(15 downto 0);
 signal if_id_data_out : std_logic_vector(if_id_reg_width - 1 downto 0);
 alias if_id_in_port_out is if_id_data_out(if_id_reg_width - 1 downto 27);
 alias if_id_pc_out is if_id_data_out(26 downto 16); -- passing pc through
@@ -84,6 +84,9 @@ alias if_id_rc_out is if_id_data_out(2 downto 0);
 alias if_id_cl_out is if_id_data_out(3 downto 0);
 alias if_id_displ_out is if_id_data_out(8 downto 0);
 alias if_id_disps_out is if_id_data_out(5 downto 0);
+alias if_id_loadimm_imm_out is if_id_data_out(7 downto 0);
+alias if_id_loadimm_m1_out is if_id_data_out(8);
+
 
 
 --ID_EX
@@ -106,9 +109,10 @@ alias id_ex_disps_out is id_ex_data_out(83 downto 78);
 alias id_ex_displ_out is id_ex_data_out(92 downto 84);
 alias id_ex_rb_out is id_ex_data_out(95 downto 93);
 alias id_ex_rc_out is id_ex_data_out(98 downto 96);
-alias id_ex_pc_load_out is id_ex_data_out(99);
-alias id_ex_mem_to_reg_out is id_ex_data_out(100);
-alias id_ex_mem_wr_en_out is id_ex_data_out(id_ex_reg_width - 1);
+alias id_ex_mem_to_reg_out is id_ex_data_out(99);
+alias id_ex_mem_wr_en_out is id_ex_data_out(100);
+alias id_ex_loadimm_imm_out is id_ex_data_out(108 downto 101);
+alias id_ex_loadimm_out is id_ex_data_out(id_ex_reg_width -1);
 
 --EX_MEM
 signal ex_mem_rst : std_logic;
@@ -121,7 +125,8 @@ alias ex_mem_ra_out is ex_mem_data_out(21 downto 19);
 alias ex_mem_out_port_en_out is ex_mem_data_out(22);
 alias ex_mem_store_addr_out is ex_mem_data_out(33 downto 23);
 alias ex_mem_mem_to_reg_en_out is ex_mem_data_out(34);
-alias ex_mem_mem_wr_en_out is ex_mem_data_out(ex_mem_reg_width - 1);
+alias ex_mem_mem_wr_en_out is ex_mem_data_out(35);
+alias ex_mem_loadimm_out is ex_mem_data_out(ex_mem_reg_width - 1);
 
 --MEM_WB
 signal mem_wb_rst : std_logic;
@@ -131,8 +136,8 @@ alias mem_wb_wb_en_out is mem_wb_data_out(16);
 alias mem_wb_ra_out is mem_wb_data_out(19 downto 17);
 alias mem_wb_out_port_en_out is mem_wb_data_out(20);
 alias mem_wb_load_data_out is  mem_wb_data_out(36 downto 21);
-alias mem_wb_mem_to_reg_en_out is  mem_wb_data_out(mem_wb_reg_width - 1);
-
+alias mem_wb_mem_to_reg_en_out is  mem_wb_data_out(7);
+alias mem_wb_loadimm_out is mem_wb_data_out(mem_wb_reg_width - 1);
 --Register file
 signal rd_data1 : std_logic_vector(15 downto 0);
 signal rd_data2 : std_logic_vector(15 downto 0);
@@ -143,7 +148,8 @@ signal pc_out         : std_logic_vector(10 downto 0); -- current PC address
 signal pc_branch_address : std_logic_vector(10 downto 0) := (others => '0'); --todo implement branching
 -- ALU signals
 signal alu_flag_z    : std_logic;                      
-signal alu_flag_n    : std_logic;                      
+signal alu_flag_n    : std_logic;
+signal alu_op1_sel: std_logic_vector(4 downto 0);
 signal op1, op2 : std_logic_vector(15 downto 0);
 signal alu_result: std_logic_vector(15 downto 0);
 
@@ -170,13 +176,13 @@ PC_inst : entity work.program_counter
         address_out => pc_out
 );
 
-ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
-  PORT MAP (
-    clka => clk, --ROM clock
-    ena => rom_en, -- active high ROM enable
-    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
-    douta => ROM_douta --ROM output tied to instruction fetch register
-);
+--ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
+--  PORT MAP (
+--    clka => clk, --ROM clock
+--    ena => rom_en, -- active high ROM enable
+--    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
+--    douta => ROM_douta --ROM output tied to instruction fetch register
+--);
 
 RAM_address_mux <= ex_mem_store_addr_out when ex_mem_mem_wr_en_out = '1' else ex_mem_alu_result_out(10 downto 0);-- todo: use control signals to select whether address comes from alu or the data in ra
 ram_en_a <= '1' when  ex_mem_mem_wr_en_out = '1'  or ex_mem_mem_to_reg_en_out = '1' else '0';
@@ -197,10 +203,9 @@ PORT MAP(
         rstb  => ram_rstb,
         regcea => ram_regcea,
         regceb => ram_regceb,
-        bubble => bubble
+        flush => flush
 );
-if_id_instr_in <= memory_instruction when (rst_load = '0' and rst_execute = '0') else std_logic_vector(to_unsigned(0,16));
-if_id_rst <= '1' when( bubble = '1' or rst_load = '1' or rst_execute = '1') else '0';
+if_id_rst <= '1' when( flush = '1' or rst_load = '1' or rst_execute = '1') else '0';
 IF_ID_inst: entity work.pipeline_reg
   generic map(
     width => if_id_reg_width
@@ -211,9 +216,12 @@ IF_ID_inst: entity work.pipeline_reg
     data_in => 
     in_port &
     pc_out & 
-    if_id_instr_in,
+    memory_instruction,
     data_out => if_id_data_out
 );
+
+loadimm_m1 <= if_id_loadimm_m1_out; -- the byte control flag of loadimm to the controller
+
 
 opcode <= if_id_opcode_out;
 --read index two source mux
@@ -231,7 +239,7 @@ RF_inst : entity work.register_file
         wr_enable => mem_wb_wb_en_out,
         reg_rd_link => reg_rd_link   
 );
-id_ex_rst <= '1' when (bubble = '1' or rst_load = '1' or rst_execute = '1') else '0';
+id_ex_rst <= '1' when (flush = '1' or rst_load = '1' or rst_execute = '1') else '0';
 ID_EX_inst: entity work.pipeline_reg
   generic map (
     width => id_ex_reg_width
@@ -239,9 +247,10 @@ ID_EX_inst: entity work.pipeline_reg
   port map (
      clk => clk,
      rst => id_ex_rst,
-     data_in => mem_wr_en &
+     data_in => loadimm &
+                if_id_loadimm_imm_out &
+                mem_wr_en &
                 mem_to_reg &
-                pc_load &
                 if_id_rb_out &
                 rd_idx2 &
                 if_id_displ_out &
@@ -275,25 +284,37 @@ FWD_UNIT: entity work.forwarding_unit
       ex_mem_reg_write=>ex_mem_wb_en_out,
       mem_wb_reg_write=>mem_wb_wb_en_out,
       forward_b=>forward_b,
-      forward_c=>forward_c
+      forward_c=>forward_c,
+      ex_mem_loadimm=>ex_mem_loadimm_out,
+      mem_wb_loadimm=> mem_wb_loadimm_out,
+      id_ex_loadimm=>id_ex_loadimm_out
 );
- 
+alu_op1_sel <= forward_c & id_ex_alu_src_out & id_ex_loadimm_out;
 -- ALU op1 src MUX
 process(all)
+constant operand : std_logic_vector(4 downto 0) := "00000";
+constant load_imm : std_logic_vector(4 downto 0) := "00001";
+constant shift_cl : std_logic_vector(4 downto 0) := "00010";
+constant inport : std_logic_vector(4 downto 0) := "00110";
+constant forward_c_wb : std_logic_vector(4 downto 0) := "01000";
+constant forward_c_mem : std_logic_vector(4 downto 0) := "10000";
 begin
-    if(forward_c = "10") then
-        op1 <= ex_mem_alu_result_out;
-    elsif(forward_c = "01") then
-        op1 <= mem_wb_mux_out;
-    else
-        if(id_ex_alu_src_out = "00") then
-            op1 <= id_ex_d1_out;
-        elsif(id_ex_alu_src_out = "01") then
+    case alu_op1_sel is
+        when forward_c_mem =>
+            op1 <= ex_mem_alu_result_out;
+        when forward_c_wb => 
+            op1 <= mem_wb_mux_out;
+        when load_imm => 
+            op1 <= x"00" & id_ex_loadimm_imm_out; -- op1 lower byte is loadimm
+        when shift_cl => 
             op1 <= (x"000" & id_ex_cl_out);
-        else
-            op1 <= id_ex_in_port_out;
-        end if;
-   end if;
+        when inport => 
+             op1 <= id_ex_in_port_out;
+        when operand =>
+            op1 <= id_ex_d1_out;
+        when others => 
+             op1 <= (others => '0');
+    end case;
 end process;
 
 -- ALU op2 src MUX 
@@ -334,11 +355,11 @@ port map(
     absolute_addr => id_ex_d2_out, --should be ra field output from register file
     pc_load => pc_load,
     pc_branch_address => pc_branch_address,
-    bubble => bubble
+    flush => flush
 ); 
 ex_mem_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
-alu_result_mux <=  std_logic_vector(resize(unsigned(id_ex_pc_out),alu_result'length)) when id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1' else alu_result;
-wb_idx_mux <= "111" when  id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1' else id_ex_ra_out;
+alu_result_mux <=  std_logic_vector(resize(unsigned(id_ex_pc_out),alu_result'length)) when id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1' else alu_result; -- replaces alu result with the pc value +2 if we are executing a subroutine call
+wb_idx_mux <= "111" when  (id_ex_out_br_en_out = '1' and id_ex_wb_en_out = '1') or id_ex_loadimm_out = '1' else id_ex_ra_out; --we are executing a subroutine call. The wb index should be 7
 EX_MEM_inst: entity work.pipeline_reg
   generic map(
     width => ex_mem_reg_width
@@ -346,9 +367,10 @@ EX_MEM_inst: entity work.pipeline_reg
   port map (
      clk => clk,
      rst => ex_mem_rst,
-     data_in => id_ex_mem_wr_en_out & -- will be the address to store that alu_result in for stores
+     data_in => id_ex_loadimm_out &
+                id_ex_mem_wr_en_out & -- will be the address to store that alu_result in for stores
                 id_ex_mem_to_reg_out &
-                rd_data1 &
+                op2(10 downto 0) &
                 id_ex_out_port_en_out &
                 wb_idx_mux &
                 id_ex_wb_en_out &
@@ -366,7 +388,8 @@ MEM_WB_inst: entity work.pipeline_reg
   port map (
      clk => clk,
      rst => mem_wb_rst,
-     data_in => ex_mem_mem_to_reg_en_out &
+     data_in => ex_mem_loadimm_out &
+                ex_mem_mem_to_reg_en_out &
                 memory_data & 
                 ex_mem_out_port_en_out &
                 ex_mem_ra_out &

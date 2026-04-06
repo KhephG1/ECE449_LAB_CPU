@@ -23,7 +23,7 @@ entity RAM is
         rstb   : in  std_logic;
         regcea : in  std_logic;
         regceb : in  std_logic;
-        bubble : in std_logic
+        flush : in std_logic
     );
 end entity RAM;
 
@@ -37,7 +37,7 @@ process(clka)
     variable counter: std_logic_vector(1 downto 0) := (others => '0');
 begin
 if(rising_edge(clka)) then
-    if(bubble = '1') then
+    if(flush = '1') then
         counter := (others => '0');
     end if;
     if(counter < "01") then
@@ -60,14 +60,14 @@ generic map (
  ADDR_WIDTH_B => 10, -- DECIMAL
  BYTE_WRITE_WIDTH_A => 8, -- DECIMAL
  CLOCKING_MODE => "common_clock", -- String
- MEMORY_INIT_FILE => "FORMAT_B_Test_Part2.mem", -- String
+ MEMORY_INIT_FILE => "FORMAT_L_Test_Part1.mem", -- String
  MEMORY_INIT_PARAM => "0", -- String
  MEMORY_OPTIMIZATION => "false", -- String
  MEMORY_SIZE => 8192, -- DECIMAL
  MESSAGE_CONTROL => 0, -- DECIMAL
  READ_DATA_WIDTH_A => 16, -- DECIMAL
  READ_DATA_WIDTH_B => 16, -- DECIMAL
- READ_LATENCY_A => 1, -- DECIMAL
+ READ_LATENCY_A => 0, -- DECIMAL
  READ_LATENCY_B => 1, -- DECIMAL
  READ_RESET_VALUE_A => "0", -- String
  READ_RESET_VALUE_B => "0", -- String

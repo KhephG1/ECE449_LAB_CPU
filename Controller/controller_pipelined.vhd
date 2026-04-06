@@ -9,6 +9,7 @@ entity controller is
     rst_load:       in std_logic;
     rst_execute:    in std_logic;
     opcode:         in std_logic_vector(6 downto 0);
+    loadimm_m1 : in std_logic;
     
     -- Register and Memory Control Signals
     reg_rst :       out std_logic; --when we receive a reset tell the register file to reset the registers
@@ -33,7 +34,9 @@ entity controller is
     mem_to_reg: out std_logic;
     
     --I/O
-   out_port_en : out std_logic
+   out_port_en : out std_logic;
+   
+   loadimm : out std_logic
 
 );
 end controller;
@@ -71,19 +74,9 @@ architecture behavioral of controller is
     
 begin
 
-process(opcode,rst_load,rst_execute)
+process(all)
 begin
-    if (rst_execute = '1' or rst_load = '1') then
-        reg_wr_en <= '0';
-        reg_rst <= '1';
-        alu_mode <= "0000";
-        alu_src <= "00";
-        alu_rst <= '1';
-        reg_wr_en <= '0';
-        reg_wr_en_pc <= '0';
-        out_port_en <= '0';
-    else
-    --set new control signal defaults here
+--set new control signal defaults here
         alu_mode <= "0000";
         alu_src <= "00";
         br_cond <= "00";
@@ -98,6 +91,11 @@ begin
         ra_op <= '0';
         mem_to_reg <= '0';
         mem_wr_en <= '0';
+        loadimm <= '0';
+    if (rst_execute = '1' or rst_load = '1') then
+        reg_rst <= '1';
+        alu_rst <= '1';
+    else
         case opcode is
             when OP_NOP =>
             when OP_ADD =>
@@ -166,7 +164,16 @@ begin
                 mem_wr_en <= '1';
                 ra_op <= '1';
             when OP_LOADIMM =>
+                loadimm <= '1';
+                reg_wr_en <= '1';
+                reg_rd_link <= '1';
+                if loadimm_m1 = '1' then 
+                    alu_mode <= "1001";
+                else 
+                    alu_mode <= "1010";
+                end if;
             when OP_MOV =>
+                reg_wr_en <= '1';
             when others =>
                 null;
         end case;

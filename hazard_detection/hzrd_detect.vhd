@@ -1,8 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
-
 entity forwarding_unit is
 port(
   rst : in std_logic;
@@ -12,12 +10,14 @@ port(
   mem_wb_ra_out : in std_logic_vector(2 downto 0);
   ex_mem_reg_write : in std_logic; -- bind to ex_mem_wr_enable
   mem_wb_reg_write : in std_logic ;-- bind to mem_wb wr enable
+  ex_mem_loadimm : in std_logic;
+  mem_wb_loadimm : in std_logic;
+  id_ex_loadimm: in std_logic;
   alu_src : in std_logic_vector(1 downto 0);
   forward_b : out std_logic_vector(1 downto 0);
   forward_c : out std_logic_vector(1 downto 0)
 );
 end entity;
-
 architecture behavioral of forwarding_unit is
 begin
 process(all) 
@@ -27,15 +27,23 @@ begin
     if rst = '0' and alu_src = "00" then
             if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rb_out) then
                 forward_b <= "10";
+            elsif (ex_mem_loadimm = '1' and (id_ex_rb_out = "111" or id_ex_loadimm = '1')) then 
+                forward_b <= "10";
             elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rb_out
                    and ex_mem_ra_out /= id_ex_rb_out) then
+                forward_b <= "01"; 
+            elsif (mem_wb_loadimm = '1' and (id_ex_rb_out = "111" or id_ex_loadimm = '1')) then
                 forward_b <= "01"; 
             end if;
             if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rc_out) then
                 forward_c <= "10";
+            elsif(ex_mem_loadimm = '1' and id_ex_rc_out = "111") then
+                forward_c <= "10";
             elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rc_out
                    and ex_mem_ra_out /= id_ex_rc_out) then
-                forward_c <= "01"; 
+                forward_c <= "01";
+            elsif(mem_wb_loadimm = '1' and id_ex_rc_out = "111") then
+                forward_c <= "01";
             end if;
     end if;      
 end process;

@@ -87,7 +87,11 @@ begin
                 end if;
             when "1000" => 
                 --out
-                temp_result := std_logic_vector(signed(op2));    
+                temp_result := std_logic_vector(signed(op2));   
+            when "1001" =>
+                 temp_result := op1(7 downto 0) & op2(7 downto 0);
+            when "1010" =>
+                    temp_result := op2(15 downto 8) & op1(7 downto 0);
             when others =>
                 temp_result := (others => '0'); 
         end case;
