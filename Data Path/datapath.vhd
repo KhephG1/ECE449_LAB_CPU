@@ -185,8 +185,8 @@ PC_inst : entity work.program_counter
 --);
 
 RAM_address_mux <= ex_mem_store_addr_out when ex_mem_mem_wr_en_out = '1' else ex_mem_alu_result_out(10 downto 0);-- todo: use control signals to select whether address comes from alu or the data in ra
-ram_en_a <= '1' when  ex_mem_mem_wr_en_out = '1'  or ex_mem_mem_to_reg_en_out = '1' else '0';
-ram_wea <= "11";
+ram_en_a <= '1';
+ram_wea <= "11" when ex_mem_mem_wr_en_out = '1' else "00";
 RAM_inst : entity work.RAM
 PORT MAP(
         clka => clk,
@@ -251,8 +251,8 @@ ID_EX_inst: entity work.pipeline_reg
                 if_id_loadimm_imm_out &
                 mem_wr_en &
                 mem_to_reg &
-                if_id_rb_out &
                 rd_idx2 &
+                if_id_rb_out &
                 if_id_displ_out &
                 if_id_disps_out & 
                 if_id_pc_out &
@@ -289,20 +289,20 @@ FWD_UNIT: entity work.forwarding_unit
       mem_wb_loadimm=> mem_wb_loadimm_out,
       id_ex_loadimm=>id_ex_loadimm_out
 );
-alu_op1_sel <= forward_c & id_ex_alu_src_out & id_ex_loadimm_out;
+alu_op1_sel <= forward_b & id_ex_alu_src_out & id_ex_loadimm_out;
 -- ALU op1 src MUX
 process(all)
 constant operand : std_logic_vector(4 downto 0) := "00000";
 constant load_imm : std_logic_vector(4 downto 0) := "00001";
 constant shift_cl : std_logic_vector(4 downto 0) := "00010";
 constant inport : std_logic_vector(4 downto 0) := "00110";
-constant forward_c_wb : std_logic_vector(4 downto 0) := "01000";
-constant forward_c_mem : std_logic_vector(4 downto 0) := "10000";
+constant forward_b_wb : std_logic_vector(4 downto 0) := "01000";
+constant forward_b_mem : std_logic_vector(4 downto 0) := "10000";
 begin
     case alu_op1_sel is
-        when forward_c_mem =>
+        when forward_b_mem =>
             op1 <= ex_mem_alu_result_out;
-        when forward_c_wb => 
+        when forward_b_wb => 
             op1 <= mem_wb_mux_out;
         when load_imm => 
             op1 <= x"00" & id_ex_loadimm_imm_out; -- op1 lower byte is loadimm
@@ -320,9 +320,9 @@ end process;
 -- ALU op2 src MUX 
 process(all)
 begin
-    if(forward_b = "10") then     
+    if(forward_c = "10") then     
         op2 <= ex_mem_alu_result_out;
-    elsif(forward_b = "01") then
+    elsif(forward_c = "01") then
         op2 <= mem_wb_mux_out;
     else
         op2 <= id_ex_d2_out;

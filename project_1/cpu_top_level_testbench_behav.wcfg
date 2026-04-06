@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="15.114 ns"></ZoomStartTime>
-      <ZoomEndTime time="21.426 ns"></ZoomEndTime>
-      <Cursor1Time time="18.611 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="19.598 ns"></ZoomEndTime>
+      <Cursor1Time time="31.083 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="154"></NameColumnWidth>
-      <ValueColumnWidth column_width="147"></ValueColumnWidth>
+      <NameColumnWidth column_width="214"></NameColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="50" />
+   <WVObjectSize size="56" />
    <wvobject fp_name="/format_b_testbench/uut/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -45,6 +45,22 @@
    <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/xpm_memory_base_inst/mem" type="array">
       <obj_property name="ElementShortName">mem[0:511][15:0]</obj_property>
       <obj_property name="ObjectShortName">mem[0:511][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/wea" type="array">
+      <obj_property name="ElementShortName">wea[1:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/dina" type="array">
+      <obj_property name="ElementShortName">dina[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/addra" type="array">
+      <obj_property name="ElementShortName">addra[9:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[9:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/format_b_testbench/uut/datapath/RAM_inst/addrb" type="array">
       <obj_property name="ElementShortName">addrb[10:0]</obj_property>
@@ -222,12 +238,20 @@
       <obj_property name="ElementShortName">mem_wb_reg_write</obj_property>
       <obj_property name="ObjectShortName">mem_wb_reg_write</obj_property>
    </wvobject>
-   <wvobject fp_name="/format_b_testbench/uut/datapath/loadimm_m1" type="logic">
-      <obj_property name="ElementShortName">loadimm_m1</obj_property>
-      <obj_property name="ObjectShortName">loadimm_m1</obj_property>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/FWD_UNIT/ex_mem_loadimm" type="logic">
+      <obj_property name="ElementShortName">ex_mem_loadimm</obj_property>
+      <obj_property name="ObjectShortName">ex_mem_loadimm</obj_property>
    </wvobject>
-   <wvobject fp_name="/format_b_testbench/uut/datapath/ALU_inst/alu_mode" type="array">
-      <obj_property name="ElementShortName">alu_mode[3:0]</obj_property>
-      <obj_property name="ObjectShortName">alu_mode[3:0]</obj_property>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/FWD_UNIT/mem_wb_loadimm" type="logic">
+      <obj_property name="ElementShortName">mem_wb_loadimm</obj_property>
+      <obj_property name="ObjectShortName">mem_wb_loadimm</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/datapath/FWD_UNIT/id_ex_loadimm" type="logic">
+      <obj_property name="ElementShortName">id_ex_loadimm</obj_property>
+      <obj_property name="ObjectShortName">id_ex_loadimm</obj_property>
+   </wvobject>
+   <wvobject fp_name="/format_b_testbench/uut/controller/mem_wr_en" type="logic">
+      <obj_property name="ElementShortName">mem_wr_en</obj_property>
+      <obj_property name="ObjectShortName">mem_wr_en</obj_property>
    </wvobject>
 </wave_config>

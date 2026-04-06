@@ -17,7 +17,6 @@ entity controller is
     reg_wr_en_pc:   out std_logic;
     reg_rd_link:    out std_logic;
     ra_op:          out std_logic; -- Whether we should get operand 2 from ra field or not (for out test and shift)
-    --mem_wr_en:      out std_logic; -- Write back result to Memory
     
     -- Branching outputs
     brr_en:          out std_logic;
