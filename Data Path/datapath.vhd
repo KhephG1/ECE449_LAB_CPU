@@ -289,8 +289,9 @@ FWD_UNIT: entity work.forwarding_unit
       mem_wb_loadimm=> mem_wb_loadimm_out,
       id_ex_loadimm=>id_ex_loadimm_out
 );
-alu_op1_sel <= forward_b & id_ex_alu_src_out & id_ex_loadimm_out;
+
 -- ALU op1 src MUX
+alu_op1_sel <= forward_b & id_ex_alu_src_out & id_ex_loadimm_out;
 process(all)
 constant operand : std_logic_vector(4 downto 0) := "00000";
 constant load_imm : std_logic_vector(4 downto 0) := "00001";
@@ -320,13 +321,14 @@ end process;
 -- ALU op2 src MUX 
 process(all)
 begin
-    if(forward_c = "10") then     
-        op2 <= ex_mem_alu_result_out;
-    elsif(forward_c = "01") then
-        op2 <= mem_wb_mux_out;
-    else
-        op2 <= id_ex_d2_out;
-    end if;
+    case forward_c is
+        when "10" =>
+            op2 <= ex_mem_alu_result_out;
+        when "01" =>
+            op2 <= mem_wb_mux_out;
+        when others =>
+            op2 <= id_ex_d2_out;
+   end case;
 end process;
         
 ALU_inst : entity work.ALU

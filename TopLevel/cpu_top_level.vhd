@@ -15,7 +15,7 @@ end cpu_top_level;
 
 architecture Behavioral of cpu_top_level is
     signal opcode : std_logic_vector(6 downto 0) := (others => '0');
-    signal reg_wr_en,pc_load,if_id_en,id_ex_en,ex_mem_en,mem_wb_en : std_logic := '0';
+    signal reg_wr_en,pc_load: std_logic := '0';
     signal alu_mode : std_logic_vector(3 downto 0) := (others => '0');
     signal alu_src : std_logic_vector( 1 downto 0) := (others =>'0'); 
     signal reg_rst : std_logic;
@@ -27,22 +27,21 @@ architecture Behavioral of cpu_top_level is
     signal reg_wr_en_pc : std_logic;
     signal reg_rd_link : std_logic;
     signal br_cond : std_logic_vector(1 downto 0);
+    signal mem_wr_en : std_logic;
+    signal mem_to_reg : std_logic;
+    signal loadimm : std_logic;
+    signal loadimm_m1 : std_logic;
 begin
 
 datapath : entity work.datapath
 port map(
     clk => clk,
-    reg_wr_en_pc=>reg_wr_en_pc,
     in_port => in_port,
     out_port => out_port,
     alu_mode=>alu_mode,
     alu_src=> alu_src,
     reg_wr_en=>reg_wr_en,
     --mem_wr_en=>mem_wr_en,
-    if_id_en=>if_id_en,
-    id_ex_en=>id_ex_en,
-    ex_mem_en=> ex_mem_en,
-    mem_wb_en => mem_wb_en,
     rst_load=>rst_load,
     rst_execute=>rst_execute,
     alu_rst => alu_rst,
@@ -53,7 +52,11 @@ port map(
     brr_en => brr_en,
     br_en => br_en,
     reg_rd_link=>reg_rd_link,
-    br_cond => br_cond
+    br_cond => br_cond,
+    mem_to_reg => mem_to_reg,
+    mem_wr_en => mem_wr_en,
+    loadimm => loadimm,
+    loadimm_m1 => loadimm_m1
 );
 
 
@@ -62,23 +65,22 @@ port map(
     clk => clk,
     rst_execute=>rst_execute, 
     rst_load=>rst_load,
-    reg_wr_en_pc=>reg_wr_en_pc, 
     reg_rd_link=>reg_rd_link,
     reg_wr_en =>reg_wr_en,
     alu_mode=>alu_mode,
     alu_src=>alu_src,
     reg_rst => reg_rst,
-    if_id_en=>if_id_en,
-    id_ex_en=>id_ex_en,
-    ex_mem_en=>ex_mem_en,
     alu_rst => alu_rst,
-    mem_wb_en => mem_wb_en,
     opcode=> opcode,
     out_port_en => out_port_en,
     ra_op => ra_op,
     brr_en => brr_en,
     br_en => br_en,
-    br_cond => br_cond
+    br_cond => br_cond,
+    mem_to_reg => mem_to_reg,
+    mem_wr_en => mem_wr_en,
+    loadimm => loadimm,
+    loadimm_m1 => loadimm_m1
 );
  
 end Behavioral;
