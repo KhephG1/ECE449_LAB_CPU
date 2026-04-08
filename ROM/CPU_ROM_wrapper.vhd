@@ -144,7 +144,7 @@ BEGIN
 
 
 
-  bmg0 : CPU_ROM
+  blk_mem_gen_0 : CPU_ROM
     PORT MAP (
       --Port A
       ENA        => ENA,
