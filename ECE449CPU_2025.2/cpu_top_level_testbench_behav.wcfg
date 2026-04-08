@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="3.831 ns"></ZoomEndTime>
-      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+      <ZoomStartTime time="17.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="33.884 ns"></ZoomEndTime>
+      <Cursor1Time time="22.721 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="209"></NameColumnWidth>
-      <ValueColumnWidth column_width="72"></ValueColumnWidth>
+      <NameColumnWidth column_width="330"></NameColumnWidth>
+      <ValueColumnWidth column_width="120"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="9" />
+   <WVObjectSize size="14" />
    <wvobject fp_name="/cpu_top_level_testbench/test_clk" type="logic">
       <obj_property name="ElementShortName">test_clk</obj_property>
       <obj_property name="ObjectShortName">test_clk</obj_property>
@@ -55,5 +55,25 @@
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/xpm_memory_base_inst/mem" type="array">
       <obj_property name="ElementShortName">mem[0:511][15:0]</obj_property>
       <obj_property name="ObjectShortName">mem[0:511][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/Hazard_inst/load_hazard" type="logic">
+      <obj_property name="ElementShortName">load_hazard</obj_property>
+      <obj_property name="ObjectShortName">load_hazard</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/IF_ID_inst/data_out" type="array">
+      <obj_property name="ElementShortName">data_out[42:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[42:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/ID_EX_inst/data_out" type="array">
+      <obj_property name="ElementShortName">data_out[109:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[109:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/EX_MEM_inst/data_out" type="array">
+      <obj_property name="ElementShortName">data_out[36:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[36:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/MEM_WB_inst/data_out" type="array">
+      <obj_property name="ElementShortName">data_out[38:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[38:0]</obj_property>
    </wvobject>
 </wave_config>

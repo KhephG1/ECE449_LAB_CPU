@@ -138,7 +138,7 @@ alias mem_wb_wb_en_out is mem_wb_data_out(16);
 alias mem_wb_ra_out is mem_wb_data_out(19 downto 17);
 alias mem_wb_out_port_en_out is mem_wb_data_out(20);
 alias mem_wb_load_data_out is  mem_wb_data_out(36 downto 21);
-alias mem_wb_mem_to_reg_en_out is  mem_wb_data_out(7);
+alias mem_wb_mem_to_reg_en_out is  mem_wb_data_out(37);
 alias mem_wb_loadimm_out is mem_wb_data_out(mem_wb_reg_width - 1);
 
 
@@ -163,7 +163,7 @@ signal flag_n : std_logic;
 signal alu_op1_sel: std_logic_vector(4 downto 0);
 signal op1, op2 : std_logic_vector(15 downto 0);
 signal alu_result: std_logic_vector(15 downto 0);
-signal alu_reset: std_logic;
+signal alu_reset : std_logic;
 --PC Signals
 signal pc_load : std_logic;
 signal pc_en : std_logic;
@@ -175,8 +175,6 @@ signal wb_idx_mux : std_logic_vector(2 downto 0);
 signal mem_wb_mux_out : std_logic_vector(15 downto 0);
 --RAM
 signal RAM_address_mux : std_logic_vector(10 downto 0);
-
-signal rf_wr_enable : std_logic;
 
 begin
 PC_inst : entity work.program_counter
@@ -199,7 +197,7 @@ PC_inst : entity work.program_counter
 --);
 
 RAM_address_mux <= ex_mem_store_addr_out when ex_mem_mem_wr_en_out = '1' else ex_mem_alu_result_out(10 downto 0);-- todo: use control signals to select whether address comes from alu or the data in ra
-ram_en_a <= '1' when hazard_unit_out = '0' else '1';
+ram_en_a <= '1';
 ram_wea <= "11" when ex_mem_mem_wr_en_out = '1' else "00";
 RAM_inst : entity work.RAM
 PORT MAP(
@@ -247,7 +245,6 @@ Hazard_inst: entity work.hazard_detection
 opcode <= if_id_opcode_out;
 --read index two source mux
 rd_idx2 <= if_id_rc_out when ra_op = '0' else if_id_ra_out;
-rf_wr_enable <= '1' when (mem_wb_wb_en_out = '1' or hazard_unit_out = '1') else '0'; 
 RF_inst : entity work.register_file
     port map(
         clk       => clk,
@@ -258,16 +255,16 @@ RF_inst : entity work.register_file
         rd_data2  => rd_data2,
         wr_index  => mem_wb_ra_out,
         wr_data   => mem_wb_mux_out,
-        wr_enable => rf_wr_enable,
+        wr_enable => mem_wb_wb_en_out,
         reg_rd_link => reg_rd_link   
 );
-id_ex_rst <= '1' when (flush = '1' or rst_load = '1' or rst_execute = '1') else '0';
+id_ex_rst <= '1' when (flush = '1' or rst_load = '1' or rst_execute = '1' or hazard_unit_out = '1') else '0';
 ID_EX_inst: entity work.pipeline_reg
   generic map (
     width => id_ex_reg_width
   )
   port map (
-     en => hazard_unit_out,
+     en => '0',
      clk => clk,
      rst => id_ex_rst,
      data_in => loadimm &
@@ -296,7 +293,7 @@ ID_EX_inst: entity work.pipeline_reg
     data_out => id_ex_data_out
 );
 
-fwd_rst <= '1' when (rst_load = '1' or rst_execute = '1' or hazard_unit_out = '1') else '0';
+fwd_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';
 Forward_unit_inst: entity work.forwarding_unit
     port map(
       rst => fwd_rst,
@@ -360,7 +357,7 @@ ALU_inst : entity work.ALU
         op1        => op1,
         op2        => op2,
         alu_mode   => id_ex_alu_mode_out,
-        alu_rst    => alu_rst, 
+        alu_rst    => alu_reset, 
         alu_result => alu_result,
         flag_z     => alu_flag_z,
         flag_n     => alu_flag_n,
@@ -387,7 +384,7 @@ begin
     end if;
 end process;
   
-branch_ctrl_rst <= '1' when (rst_load = '1' or rst_execute = '1' or hazard_unit_out = '1') else '0';  
+branch_ctrl_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
 Branch_control_inst: entity work.branch_controller
 port map(
     rst => branch_ctrl_rst,
