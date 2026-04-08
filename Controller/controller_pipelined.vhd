@@ -9,7 +9,6 @@ entity controller is
     rst_load:       in std_logic;
     rst_execute:    in std_logic;
     opcode:         in std_logic_vector(6 downto 0);
-    loadimm_m1 : in std_logic;
     
     -- Register and Memory Control Signals
     reg_rst :       out std_logic; --when we receive a reset tell the register file to reset the registers
@@ -34,9 +33,9 @@ entity controller is
     
     --I/O
    out_port_en : out std_logic;
-   
-   loadimm : out std_logic
-
+   --Load Store
+   loadimm : out std_logic;
+   loadimm_m1 : in std_logic
 );
 end controller;
 

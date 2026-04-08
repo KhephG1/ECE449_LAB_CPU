@@ -18,8 +18,8 @@
 -------------------------------------------------------------------------------------
 
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity ALU is
@@ -29,73 +29,75 @@ entity ALU is
         alu_rst    : in std_logic;
         alu_mode   : in  STD_LOGIC_VECTOR (3 downto 0);  -- Control signal from Decoder
         alu_result : out STD_LOGIC_VECTOR (15 downto 0); -- 16-bit computed result
+        enable_psr : out std_logic;
+        enable_v : out std_logic; -- we're executing an instruction that might overflow. enable v bit for writing
         flag_z     : out STD_LOGIC;                      -- Zero flag 
-        flag_n     : out STD_LOGIC                       -- Negative flag 
+        flag_n     : out STD_LOGIC;                       -- Negative flag 
+        flag_v     : out std_logic
     );
 end ALU;
 
 architecture Behavioral of ALU is
-
+signal temp_result : std_logic_vector(15 downto 0);
 begin
-    
-  
-    process(op1, op2, alu_mode, alu_rst)
-        
-        variable temp_result : STD_LOGIC_VECTOR(15 downto 0);
+    process(all)  
     begin
- 
-        temp_result := (others => '0');
-        
-        if(alu_rst = '1') then
-            flag_z <= '0';
-            flag_n <= '0';
+        temp_result <= (others => '0'); 
+        flag_z <= '0';
+        flag_n <= '0';
+        flag_v <= '0';
+        enable_psr <= '0';
+        enable_v <= '0';    
+        if(alu_rst = '0') then        
+            case alu_mode is
+                when "0000" =>
+                    --NOP
+                    temp_result <= std_logic_vector(signed(op1));
+                when "0001" => 
+                    --ADD
+                    --todo: if overflow, enable psr and set the flag
+                    enable_v <= '1';  
+                    temp_result <= std_logic_vector(signed(op1) + signed(op2));
+                when "0010" => 
+                    -- SUB
+                    --todo: if overflow, enable_psr_v and set the flag
+                    enable_v <= '1';  
+                   temp_result <= std_logic_vector(signed(op1) - signed(op2));
+                when "0011" =>
+                   -- MUL
+                   --todo: if overflow, enable psr and set the flag
+                   temp_result <= std_logic_vector(signed(op1(7 downto 0)) * signed(op2(7 downto 0)));
+                when "0100" => 
+                    --NAND
+                    temp_result <= op1 nand op2;
+                when "0101" => 
+                    --SLL
+                    temp_result <= std_logic_vector(shift_left(unsigned(op2),to_integer(unsigned(op1))));
+                when "0110" =>
+                    --SRL 
+                    temp_result <= std_logic_vector(shift_right(unsigned(op2),to_integer(unsigned(op1))));
+                when "0111" =>
+                    --TEST
+                    enable_psr <= '1';
+                    if to_integer(signed(op2)) = 0 then 
+                        flag_z <= '1';
+                    end if;
+                    if to_integer(signed(op2)) < 0 then 
+                        flag_n <= '1';
+                    end if;
+                when "1000" => 
+                    --out
+                    temp_result <= std_logic_vector(signed(op2));   
+                when "1001" =>
+                    -- Loadimm upper
+                    temp_result <= op1(7 downto 0) & op2(7 downto 0);
+                when "1010" =>
+                    -- Loadimm lower
+                    temp_result <= op2(15 downto 8) & op1(7 downto 0);
+                when others =>
+                    temp_result <= (others => '0'); 
+            end case;
         end if;
-        case alu_mode is
-            when "0000" =>
-                --NOP
-                temp_result := std_logic_vector(signed(op1));
-            when "0001" => 
-                --ADD
-                temp_result := std_logic_vector(signed(op1) + signed(op2));
-            when "0010" => 
-                -- SUB
-               temp_result := std_logic_vector(signed(op1) - signed(op2));
-               
-            when "0011" =>
-               -- MUL
-               temp_result := std_logic_vector(signed(op1(7 downto 0)) * signed(op2(7 downto 0)));
-            when "0100" => 
-                --NAND
-                temp_result := op1 nand op2;
-            when "0101" => 
-                --SLL
-                temp_result := std_logic_vector(shift_left(unsigned(op2),to_integer(unsigned(op1))));
-            when "0110" =>
-                --SRL 
-                temp_result := std_logic_vector(shift_right(unsigned(op2),to_integer(unsigned(op1))));
-            when "0111" =>
-                --TEST
-                if to_integer(signed(op2)) = 0 then 
-                    flag_z <= '1';
-                else
-                    flag_z <= '0';
-                end if;
-                if to_integer(signed(op2)) < 0 then 
-                    flag_n <= '1';
-                else 
-                    flag_n <= '0';
-                end if;
-            when "1000" => 
-                --out
-                temp_result := std_logic_vector(signed(op2));   
-            when "1001" =>
-                 temp_result := op1(7 downto 0) & op2(7 downto 0);
-            when "1010" =>
-                    temp_result := op2(15 downto 8) & op1(7 downto 0);
-            when others =>
-                temp_result := (others => '0'); 
-        end case;
- 
         alu_result <= temp_result;
 
     end process;

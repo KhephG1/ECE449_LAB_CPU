@@ -1,0 +1,18 @@
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ALU/ALU.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'ALU'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ProgramCounter/programCounter.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'program_counter'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/PipelineRegister/pipeline_reg_generic.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'pipeline_reg'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/HazardDetection/hazard_detection.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'hazard_detection'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/program_status_register/program_status_register.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'program_status_register'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'datapath'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Controller/controller_pipelined.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'controller'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/TopLevel/cpu_top_level.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'cpu_top_level'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Topleveltestbench/cpu_top_level_testbench.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'cpu_top_level_testbench'
