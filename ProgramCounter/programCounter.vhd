@@ -27,6 +27,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity program_counter is
     Port(
+        en:             in std_logic;
         clk:            in std_logic;
         rst_load:       in std_logic;
         rst_execute:    in std_logic;
@@ -43,14 +44,16 @@ process(clk)
     variable pc: std_logic_vector(10 downto 0) := (others => '0');
 begin
     if rising_edge(clk) then
-        if rst_load = '1' then
-            pc := std_logic_vector(to_unsigned(2,11));
-        elsif rst_execute = '1' then
-            pc := (others => '0'); 
-        elsif load = '1' then
-            pc := address_in;
-        else
-            pc := std_logic_vector(unsigned(pc) + 2);
+        if(en = '0') then
+            if rst_load = '1' then
+                pc := std_logic_vector(to_unsigned(2,11));
+            elsif rst_execute = '1' then
+                pc := (others => '0'); 
+            elsif load = '1' then
+                pc := address_in;
+            else
+                pc := std_logic_vector(unsigned(pc) + 2);
+            end if;
         end if;
     end if;
     address_out <= pc;
