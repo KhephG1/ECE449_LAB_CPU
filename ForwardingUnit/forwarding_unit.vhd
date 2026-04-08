@@ -30,7 +30,7 @@ begin
             elsif (ex_mem_loadimm = '1' and id_ex_rb_out = "111") then 
                 forward_b <= "10";
             elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rb_out
-                   and ex_mem_ra_out /= id_ex_rb_out) then
+                   and (ex_mem_ra_out /= id_ex_rb_out or ex_mem_reg_write = '0')) then
                 forward_b <= "01"; 
             elsif (mem_wb_loadimm = '1' and id_ex_rb_out = "111") then
                 forward_b <= "01"; 
@@ -40,7 +40,7 @@ begin
             elsif(ex_mem_loadimm = '1' and( id_ex_rc_out = "111" or id_ex_loadimm = '1')) then
                 forward_c <= "10";
             elsif (mem_wb_reg_write = '1' and mem_wb_ra_out = id_ex_rc_out
-                   and ex_mem_ra_out /= id_ex_rc_out) then
+                   and (ex_mem_ra_out /= id_ex_rc_out or ex_mem_reg_write = '0')) then
                 forward_c <= "01";
             elsif(mem_wb_loadimm = '1' and (id_ex_rc_out = "111" or id_ex_loadimm = '1')) then
                 forward_c <= "01";

@@ -357,7 +357,7 @@ ALU_inst : entity work.ALU
         op1        => op1,
         op2        => op2,
         alu_mode   => id_ex_alu_mode_out,
-        alu_rst    => alu_reset, 
+        alu_rst    => alu_rst, 
         alu_result => alu_result,
         flag_z     => alu_flag_z,
         flag_n     => alu_flag_n,

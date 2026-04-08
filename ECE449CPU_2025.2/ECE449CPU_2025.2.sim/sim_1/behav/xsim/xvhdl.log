@@ -1,6 +1,0 @@
-INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Data Path/datapath.vhd" into library xil_defaultlib
-INFO: [VRFC 10-3107] analyzing entity 'datapath'
-INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/TopLevel/cpu_top_level.vhd" into library xil_defaultlib
-INFO: [VRFC 10-3107] analyzing entity 'cpu_top_level'
-INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/Topleveltestbench/cpu_top_level_testbench.vhd" into library xil_defaultlib
-INFO: [VRFC 10-3107] analyzing entity 'cpu_top_level_testbench'
