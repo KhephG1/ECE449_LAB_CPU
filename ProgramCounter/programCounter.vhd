@@ -54,7 +54,13 @@ begin
             else
                 pc := std_logic_vector(unsigned(pc) + 2);
             end if;
+        else 
+                pc := std_logic_vector(unsigned(pc) - 2); -- this is mega sketch but without it stalling for loads is quite difficult
+                -- the ROM/RAM has a 1 cycle delay. This means: we give address, one cycle later we get data. When we disable pc on the load stall we technically do it 
+                -- 1 cycle too late. by decrementing the pc by 2 when disabled, it ensures that on the next clock cycle, the IF/ID register will be given the data from what the pc should have been
+                -- when we wanted to stall.
         end if;
+        
     end if;
     address_out <= pc;
 end process;

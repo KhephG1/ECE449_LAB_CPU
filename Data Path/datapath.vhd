@@ -448,11 +448,12 @@ MEM_WB_inst: entity work.pipeline_reg
 
 mem_wb_mux_out <= mem_wb_alu_result_out when mem_wb_mem_to_reg_en_out = '0' else mem_wb_load_data_out;
 
-process(all) begin
-    if mem_wb_out_port_en_out = '1' then
-        out_port <= mem_wb_mux_out;
-    else
-        out_port <= (others => '0');
+--out port buffer ( its an edge sensitive register so we don't infer a latch)
+process(clk) begin
+    if(rising_edge(clk)) then
+        if mem_wb_out_port_en_out = '1' then
+            out_port <= mem_wb_mux_out;
+        end if;
     end if;
 end process;
 end  behavioural;

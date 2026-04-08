@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="22.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="31.441 ns"></ZoomEndTime>
-      <Cursor1Time time="28.900 ns"></Cursor1Time>
+      <ZoomStartTime time="20.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="33.943 ns"></ZoomEndTime>
+      <Cursor1Time time="24.706 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="249"></NameColumnWidth>
-      <ValueColumnWidth column_width="107"></ValueColumnWidth>
+      <ValueColumnWidth column_width="102"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="31" />
    <wvobject fp_name="/cpu_top_level_testbench/test_clk" type="logic">
       <obj_property name="ElementShortName">test_clk</obj_property>
       <obj_property name="ObjectShortName">test_clk</obj_property>
@@ -51,6 +51,10 @@
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/RAM_inst/addrb" type="array">
       <obj_property name="ElementShortName">addrb[10:0]</obj_property>
       <obj_property name="ObjectShortName">addrb[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/doutb" type="array">
+      <obj_property name="ElementShortName">doutb[15:0]</obj_property>
+      <obj_property name="ObjectShortName">doutb[15:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/xpm_memory_base_inst/mem" type="array">
       <obj_property name="ElementShortName">mem[0:511][15:0]</obj_property>
@@ -127,5 +131,18 @@
    <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/Forward_unit_inst/mem_wb_reg_write" type="logic">
       <obj_property name="ElementShortName">mem_wb_reg_write</obj_property>
       <obj_property name="ObjectShortName">mem_wb_reg_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/test_out_port" type="array">
+      <obj_property name="ElementShortName">test_out_port[15:0]</obj_property>
+      <obj_property name="ObjectShortName">test_out_port[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/datapath/out_port_en" type="logic">
+      <obj_property name="ElementShortName">out_port_en</obj_property>
+      <obj_property name="ObjectShortName">out_port_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_top_level_testbench/uut/controller/opcode" type="array">
+      <obj_property name="ElementShortName">opcode[6:0]</obj_property>
+      <obj_property name="ObjectShortName">opcode[6:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
 </wave_config>
