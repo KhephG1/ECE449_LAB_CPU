@@ -1,1 +1,0 @@
-CPU_ROM_sim_netlist.vhdl,vhdl,xil_defaultlib,../../../../ECE449CPU_2025.2.gen/sources_1/ip/CPU_ROM/CPU_ROM_sim_netlist.vhdl,incdir="../../../../../../../../../../../../Xilinx/2025.1/Vivado/data/rsb/busdef"

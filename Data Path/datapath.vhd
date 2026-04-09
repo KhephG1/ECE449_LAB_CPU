@@ -188,13 +188,13 @@ PC_inst : entity work.program_counter
         address_out => pc_out
 );
 
---ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
---  PORT MAP (
---    clka => clk, --ROM clock
---    ena => rom_en, -- active high ROM enable
---    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
---    douta => ROM_douta --ROM output tied to instruction fetch register
---);
+ROM_inst : entity work.CPU_ROM_wrapper -- ROM with 1 clock cycle read latency
+  PORT MAP (
+    clka => clk, --ROM clock
+    ena => rom_en, -- active high ROM enable
+    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
+    douta => ROM_douta --ROM output tied to instruction fetch register
+);
 
 RAM_address_mux <= ex_mem_store_addr_out when ex_mem_mem_wr_en_out = '1' else ex_mem_alu_result_out(10 downto 0);-- todo: use control signals to select whether address comes from alu or the data in ra
 ram_en_a <= '1';
@@ -394,6 +394,7 @@ port map(
     br_cond => id_ex_out_br_cond_out,
     flag_n => flag_n,
     flag_z => flag_z,
+    flag_v => flag_v,
     disp_l => id_ex_displ_out,
     disp_s => id_ex_disps_out,
     pc => id_ex_pc_out,

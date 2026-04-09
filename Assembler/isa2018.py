@@ -55,7 +55,7 @@ TEST = 0x0e00
 # add new opcode here
 # MYOP		= 0xff00
 HALT = 0x1000  # unused, but needed for assembler
-
+BRR_OVERFLOW = 0x9000
 opcode2string = \
     {
         NOP 	: 'NOP',
@@ -92,7 +92,8 @@ opcode2string = \
         SINA_2        : 'SINA_2',
         SINA_1        : 'SINA_1',
         SINA_0        : 'SINA_0',
-        HALT		: 'HALT'
+        HALT		: 'HALT',
+	BRR_OVERFLOW	: 'BRR.OVERFLOW',
     }
 
 string2opcode = {}

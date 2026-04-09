@@ -74,7 +74,6 @@ begin
                     enable_v <= '1';
                     mul_full <= signed(op1) * signed(op2);
                     temp_result <= std_logic_vector(mul_full(15 downto 0));
-                    flag_v <= '0';
                     for i in 16 to 31 loop
                         if mul_full(i) /= mul_full(15) then
                             flag_v <= '1';

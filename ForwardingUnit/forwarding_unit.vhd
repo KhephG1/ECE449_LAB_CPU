@@ -24,7 +24,7 @@ process(all)
 begin
     forward_b <= "00";
     forward_c <= "00";
-    if rst = '0' and alu_src = "00" then
+    if rst = '0' then
             if (ex_mem_reg_write = '1' and ex_mem_ra_out = id_ex_rb_out) then
                 forward_b <= "10";
             elsif (ex_mem_loadimm = '1' and id_ex_rb_out = "111") then 

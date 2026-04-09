@@ -7,7 +7,3 @@ Warning: [XPM_MEMORY 30-17] MEMORY_SIZE (8192), READ_DATA_WIDTH_A (16), and ADDR
 Time: 1 ps  Iteration: 0  Process: /format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/xpm_memory_base_inst/Initial310_0  Scope: format_b_testbench.uut.datapath.RAM_inst.xpm_memory_dpdistram_inst.xpm_memory_base_inst.config_drc  File: C:/Xilinx/2025.1/Vivado/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv Line: 565
 Warning: [XPM_MEMORY 30-19] MEMORY_SIZE (8192), READ_DATA_WIDTH_B (16), and ADDR_WIDTH_B (10) together imply that the addressable range exceeds the memory size for this configuration which uses port B read operations. format_b_testbench.uut.datapath.RAM_inst.xpm_memory_dpdistram_inst.xpm_memory_base_inst.config_drc
 Time: 1 ps  Iteration: 0  Process: /format_b_testbench/uut/datapath/RAM_inst/xpm_memory_dpdistram_inst/xpm_memory_base_inst/Initial310_0  Scope: format_b_testbench.uut.datapath.RAM_inst.xpm_memory_dpdistram_inst.xpm_memory_base_inst.config_drc  File: C:/Xilinx/2025.1/Vivado/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv Line: 569
-Warning: NUMERIC_STD."=": metavalue detected, returning FALSE
-Time: 40 ns  Iteration: 2  Process: /format_b_testbench/uut/datapath/ALU_inst/line__45  File: C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ALU/ALU.vhd
-Warning: NUMERIC_STD."=": metavalue detected, returning FALSE
-Time: 42 ns  Iteration: 2  Process: /format_b_testbench/uut/datapath/ALU_inst/line__45  File: C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ALU/ALU.vhd

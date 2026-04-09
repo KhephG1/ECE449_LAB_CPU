@@ -32,6 +32,7 @@ Port (
     brr_en : in std_logic;
     flag_n : in std_logic;
     flag_z : in std_logic;
+    flag_v : in std_logic;
     absolute_addr : in std_logic_vector(15 downto 0);
     br_cond : in std_logic_vector(1 downto 0);
     disp_l : in std_logic_vector(8 downto 0);
@@ -98,7 +99,14 @@ if(falling_edge(clk)) then
                         shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
                         resize(signed(pc) - 2, pc_branch_address'length));
                 end if;
-
+            when "11" =>
+                if flag_v = '1' and brr_en = '1' then
+                    pc_load <= '1';
+                    flush <= '1';
+                    pc_branch_address <= std_logic_vector(
+                        shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
+                        resize(signed(pc) - 2, pc_branch_address'length));
+                 end if;
             when others =>
                 pc_load <= '0';
                 pc_branch_address <= (others => '0');

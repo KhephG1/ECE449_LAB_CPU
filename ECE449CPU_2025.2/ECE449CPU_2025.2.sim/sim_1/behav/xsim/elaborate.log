@@ -12,9 +12,28 @@ Compiling package std.standard
 Compiling package std.textio
 Compiling package ieee.std_logic_1164
 Compiling package ieee.numeric_std
+Compiling package ieee.std_logic_arith
+Compiling package ieee.std_logic_unsigned
+Compiling package unisim.vcomponents
+Compiling package ieee.std_logic_signed
+Compiling package ieee.std_logic_textio
+Compiling package ieee.vital_timing
+Compiling package ieee.vital_primitives
+Compiling package unisim.vpkg
 Compiling package xpm.vcomponents
 Compiling package vl.vl_types
 Compiling architecture behavioral of entity xil_defaultlib.program_counter [program_counter_default]
+Compiling architecture gnd_v of entity unisim.GND [gnd_default]
+Compiling architecture rb18_internal_vhdl_v of entity unisim.RB18_INTERNAL_VHDL [\RB18_INTERNAL_VHDL(bram_size=18...]
+Compiling architecture ramb18e1_v of entity unisim.RAMB18E1 [\RAMB18E1(init_00="0000000000000...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_prim_wrapper_init [cpu_rom_blk_mem_gen_prim_wrapper...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_prim_width [cpu_rom_blk_mem_gen_prim_width_d...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_generic_cstr [cpu_rom_blk_mem_gen_generic_cstr...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_top [cpu_rom_blk_mem_gen_top_default]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_v8_4_11_synth [cpu_rom_blk_mem_gen_v8_4_11_synt...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM_blk_mem_gen_v8_4_11 [cpu_rom_blk_mem_gen_v8_4_11_defa...]
+Compiling architecture structure of entity xil_defaultlib.CPU_ROM [cpu_rom_default]
+Compiling architecture amd of entity xil_defaultlib.CPU_ROM_wrapper [cpu_rom_wrapper_default]
 Compiling module xpm.xpm_memory_base(MEMORY_SIZE=8192...
 Compiling module xpm.xpm_memory_dpdistram(MEMORY_SIZE...
 Compiling architecture rtl of entity xil_defaultlib.RAM [ram_default]

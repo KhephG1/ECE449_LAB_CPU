@@ -1,8 +1,12 @@
 # compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../ECE449CPU_2025.2.gen/sources_1/ip/CPU_ROM/CPU_ROM_sim_netlist.vhdl" \
+
 vhdl2008 xil_defaultlib  \
 "../../../../../ALU/ALU.vhd" \
 
 vhdl xil_defaultlib  \
+"../../../../../ROM/CPU_ROM_wrapper.vhd" \
 "../../../../../RAM/RAM_macro.vhd" \
 "../../../../../ProgramCounter/programCounter.vhd" \
 "../../../../../PipelineRegister/pipeline_reg_generic.vhd" \
