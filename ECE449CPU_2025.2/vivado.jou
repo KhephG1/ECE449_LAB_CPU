@@ -66,3 +66,18 @@ launch_runs CPU_ROM_synth_1 -jobs 4
 wait_on_run CPU_ROM_synth_1
 wait_on_run CPU_ROM_synth_1
 export_simulation -lib_map_path [list {modelsim=C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.cache/compile_simlib/modelsim} {questa=C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.cache/compile_simlib/questa} {riviera=C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.cache/compile_simlib/riviera} {activehdl=C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.cache/compile_simlib/activehdl}] -of_objects [get_files c:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.srcs/sources_1/ip/CPU_ROM/CPU_ROM.xci] -directory C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.ip_user_files/sim_scripts -ip_user_files_dir C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.ip_user_files -ipstatic_source_dir C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/ECE449CPU_2025.2.ip_user_files/ipstatic -use_ip_compiled_libs -force -quiet
+launch_simulation
+open_wave_config C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/cpu_top_level_testbench_behav.wcfg
+source cpu_top_level_testbench.tcl
+relaunch_sim
+relaunch_sim
+relaunch_sim
+save_wave_config {C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/cpu_top_level_testbench_behav.wcfg}
+close_sim
+launch_simulation
+open_wave_config C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/cpu_top_level_testbench_behav.wcfg
+source cpu_top_level_testbench.tcl
+close_sim
+launch_simulation
+open_wave_config C:/Users/Kheph/Documents/Projects/School/ECE449CPU/ECE449_LAB_CPU/ECE449CPU_2025.2/cpu_top_level_testbench_behav.wcfg
+source cpu_top_level_testbench.tcl

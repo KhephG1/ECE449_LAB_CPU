@@ -26,7 +26,7 @@ vhdl2008 xil_defaultlib  \
 
 vhdl xil_defaultlib  \
 "../../../../../TopLevel/cpu_top_level.vhd" \
-"../../../../../Topleveltestbench/cpu_top_level_testbench.vhd" \
+"../../../../../Topleveltestbench/format_b_testbench_2.vhd" \
 
 # Do not sort compile order
 nosort

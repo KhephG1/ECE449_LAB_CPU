@@ -317,7 +317,7 @@ process(all)
 constant operand : std_logic_vector(4 downto 0) := "00000";
 constant load_imm : std_logic_vector(4 downto 0) := "00001";
 constant shift_cl : std_logic_vector(4 downto 0) := "00010";
-constant inport : std_logic_vector(4 downto 0) := "00110";
+constant inport : std_logic_vector(4 downto 0) := "00100";
 constant forward_b_wb : std_logic_vector(4 downto 0) := "01000";
 constant forward_b_mem : std_logic_vector(4 downto 0) := "10000";
 begin
@@ -387,6 +387,7 @@ end process;
 branch_ctrl_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
 Branch_control_inst: entity work.branch_controller
 port map(
+    clk => clk,
     rst => branch_ctrl_rst,
     br_en => id_ex_out_br_en_out,
     brr_en => id_ex_out_brr_en_out,
