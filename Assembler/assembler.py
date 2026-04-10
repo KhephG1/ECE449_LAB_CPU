@@ -598,7 +598,7 @@ DATA """ % (time.ctime(time.time()), Version, self.memory_depth)
 				self.UpdateAddress()
 
 				# 1 parameter rb opcodes
-			elif opcode in [BRR, BRR_Z, BRR_N]:
+			elif opcode in [BRR, BRR_Z, BRR_N, BRR_OVERFLOW]:
 					#    BRR_* displacement
 					# ex BRR_* label
 					# etc
@@ -812,7 +812,7 @@ DATA """ % (time.ctime(time.time()), Version, self.memory_depth)
 
 
 				# 1 parameter rb opcodes
-			elif opcode in [BRR, BRR_Z, BRR_N]:
+			elif opcode in [BRR, BRR_Z, BRR_N, BRR_OVERFLOW]:
 					#    BRR_* displacement
 					# ex BRR_* label
 					# etc

@@ -64,6 +64,7 @@ architecture behavioral of controller is
     constant OP_BR_Z : opcode_t := "1000101"; 
     constant OP_BSUB  : opcode_t  := "1000110";
     constant OP_RTRN : opcode_t := "1000111"; 
+    constant OP_BRR_OVERFLOW : opcode_t := std_logic_vector(to_unsigned(72,7));
     -- Format L Instructions 
     constant OP_LOAD : opcode_t := std_logic_vector(to_unsigned(16,7));
     constant OP_STORE: opcode_t := std_logic_vector(to_unsigned(17,7));
@@ -155,6 +156,9 @@ begin
             when OP_RTRN =>
                 reg_rd_link <= '1';
                 br_en <= '1';
+            when OP_BRR_OVERFLOW => -- new conditional branch on overflow instruction
+                br_cond <= "11";
+                brr_en <= '1';
             when OP_LOAD =>
                 mem_to_reg <= '1';
                 reg_wr_en <= '1';

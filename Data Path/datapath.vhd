@@ -188,13 +188,13 @@ PC_inst : entity work.program_counter
         address_out => pc_out
 );
 
---ROM_inst : entity CPU_ROM -- ROM with 1 clock cycle read latency
---  PORT MAP (
---    clka => clk, --ROM clock
---    ena => rom_en, -- active high ROM enable
---    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
---    douta => ROM_douta --ROM output tied to instruction fetch register
---);
+ROM_inst : entity work.CPU_ROM_wrapper -- ROM with 1 clock cycle read latency
+  PORT MAP (
+    clka => clk, --ROM clock
+    ena => rom_en, -- active high ROM enable
+    addra => pc_out(8 downto 0), -- address input for the ROM tied to program counter output
+    douta => ROM_douta --ROM output tied to instruction fetch register
+);
 
 RAM_address_mux <= ex_mem_store_addr_out when ex_mem_mem_wr_en_out = '1' else ex_mem_alu_result_out(10 downto 0);-- todo: use control signals to select whether address comes from alu or the data in ra
 ram_en_a <= '1';
@@ -317,7 +317,7 @@ process(all)
 constant operand : std_logic_vector(4 downto 0) := "00000";
 constant load_imm : std_logic_vector(4 downto 0) := "00001";
 constant shift_cl : std_logic_vector(4 downto 0) := "00010";
-constant inport : std_logic_vector(4 downto 0) := "00110";
+constant inport : std_logic_vector(4 downto 0) := "00100";
 constant forward_b_wb : std_logic_vector(4 downto 0) := "01000";
 constant forward_b_mem : std_logic_vector(4 downto 0) := "10000";
 begin
@@ -387,12 +387,14 @@ end process;
 branch_ctrl_rst <= '1' when (rst_load = '1' or rst_execute = '1') else '0';  
 Branch_control_inst: entity work.branch_controller
 port map(
+    clk => clk,
     rst => branch_ctrl_rst,
     br_en => id_ex_out_br_en_out,
     brr_en => id_ex_out_brr_en_out,
     br_cond => id_ex_out_br_cond_out,
     flag_n => flag_n,
     flag_z => flag_z,
+    flag_v => flag_v,
     disp_l => id_ex_displ_out,
     disp_s => id_ex_disps_out,
     pc => id_ex_pc_out,
@@ -448,11 +450,12 @@ MEM_WB_inst: entity work.pipeline_reg
 
 mem_wb_mux_out <= mem_wb_alu_result_out when mem_wb_mem_to_reg_en_out = '0' else mem_wb_load_data_out;
 
-process(all) begin
-    if mem_wb_out_port_en_out = '1' then
-        out_port <= mem_wb_mux_out;
-    else
-        out_port <= (others => '0');
+--out port buffer ( its an edge sensitive register so we don't infer a latch)
+process(clk) begin
+    if(rising_edge(clk)) then
+        if mem_wb_out_port_en_out = '1' then
+            out_port <= mem_wb_mux_out;
+        end if;
     end if;
 end process;
 end  behavioural;

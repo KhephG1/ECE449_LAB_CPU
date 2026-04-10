@@ -1,0 +1,36 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../ECE449CPU_2025.2.gen/sources_1/ip/CPU_ROM/CPU_ROM_sim_netlist.vhdl" \
+
+vhdl2008 xil_defaultlib  \
+"../../../../../ALU/ALU.vhd" \
+
+vhdl xil_defaultlib  \
+"../../../../../ROM/CPU_ROM_wrapper.vhd" \
+"../../../../../RAM/RAM_macro.vhd" \
+"../../../../../ProgramCounter/programCounter.vhd" \
+"../../../../../PipelineRegister/pipeline_reg_generic.vhd" \
+
+vhdl2008 xil_defaultlib  \
+"../../../../../HazardDetection/hazard_detection.vhd" \
+
+vhdl xil_defaultlib  \
+"../../../../../RegisterFile/registerfile.vhd" \
+
+vhdl2008 xil_defaultlib  \
+"../../../../../ForwardingUnit/forwarding_unit.vhd" \
+
+vhdl xil_defaultlib  \
+"../../../../../program_status_register/program_status_register.vhd" \
+
+vhdl2008 xil_defaultlib  \
+"../../../../../Branch Controller/branch_controller.vhd" \
+"../../../../../Data Path/datapath.vhd" \
+"../../../../../Controller/controller_pipelined.vhd" \
+
+vhdl xil_defaultlib  \
+"../../../../../TopLevel/cpu_top_level.vhd" \
+"../../../../../Topleveltestbench/format_b_testbench_2.vhd" \
+
+# Do not sort compile order
+nosort

@@ -26,11 +26,13 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity branch_controller is
 Port (
+    clk : in std_logic;
     rst : in std_logic;
     br_en : in std_logic;
     brr_en : in std_logic;
     flag_n : in std_logic;
     flag_z : in std_logic;
+    flag_v : in std_logic;
     absolute_addr : in std_logic_vector(15 downto 0);
     br_cond : in std_logic_vector(1 downto 0);
     disp_l : in std_logic_vector(8 downto 0);
@@ -46,7 +48,8 @@ end branch_controller;
 
 architecture Behavioral of branch_controller is
 begin
-process(all) begin
+process(clk) begin
+if(falling_edge(clk)) then
     pc_load <= '0';
     pc_branch_address <= (others => '0');
     flush <= '0';
@@ -96,11 +99,19 @@ process(all) begin
                         shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
                         resize(signed(pc) - 2, pc_branch_address'length));
                 end if;
-
+            when "11" =>
+                if flag_v = '1' and brr_en = '1' then
+                    pc_load <= '1';
+                    flush <= '1';
+                    pc_branch_address <= std_logic_vector(
+                        shift_left(resize(signed(disp_l), pc_branch_address'length), 1) +
+                        resize(signed(pc) - 2, pc_branch_address'length));
+                 end if;
             when others =>
                 pc_load <= '0';
                 pc_branch_address <= (others => '0');
         end case;
     end if;
+end if;
 end process;
 end Behavioral;

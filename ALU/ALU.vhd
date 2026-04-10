@@ -39,6 +39,8 @@ end ALU;
 
 architecture Behavioral of ALU is
 signal temp_result : std_logic_vector(15 downto 0);
+signal add_sub_ext : signed(16 downto 0);
+signal mul_full    : signed(31 downto 0);
 begin
     process(all)  
     begin
@@ -53,20 +55,30 @@ begin
                 when "0000" =>
                     --NOP
                     temp_result <= std_logic_vector(signed(op1));
-                when "0001" => 
-                    --ADD
-                    --todo: if overflow, enable psr and set the flag
-                    enable_v <= '1';  
-                    temp_result <= std_logic_vector(signed(op1) + signed(op2));
+                when "0001" =>
+                 -- ADD
+                    enable_v <= '1';
+                    add_sub_ext <= resize(signed(op1), 17) + resize(signed(op2), 17);
+                    temp_result <= std_logic_vector(add_sub_ext(15 downto 0));
+                    flag_v <= add_sub_ext(16) xor add_sub_ext(15);
+            
                 when "0010" => 
-                    -- SUB
-                    --todo: if overflow, enable_psr_v and set the flag
-                    enable_v <= '1';  
-                   temp_result <= std_logic_vector(signed(op1) - signed(op2));
-                when "0011" =>
-                   -- MUL
-                   --todo: if overflow, enable psr and set the flag
-                   temp_result <= std_logic_vector(signed(op1(7 downto 0)) * signed(op2(7 downto 0)));
+                -- SUB
+                    enable_v <= '1';
+                    add_sub_ext <= resize(signed(op1), 17) - resize(signed(op2), 17);
+                    temp_result <= std_logic_vector(add_sub_ext(15 downto 0));
+                    flag_v <= add_sub_ext(16) xor add_sub_ext(15);
+                
+                when "0011" => 
+                -- MUL
+                    enable_v <= '1';
+                    mul_full <= signed(op1) * signed(op2);
+                    temp_result <= std_logic_vector(mul_full(15 downto 0));
+                    for i in 16 to 31 loop
+                        if mul_full(i) /= mul_full(15) then
+                            flag_v <= '1';
+                        end if;
+                    end loop;
                 when "0100" => 
                     --NAND
                     temp_result <= op1 nand op2;
